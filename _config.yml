@@ -232,3 +232,9 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
     category: /categories/:name/
+
+
+  sass:
+    style: compressed
+    load_paths:
+      - assets/css
