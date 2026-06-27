@@ -1,0 +1,372 @@
+---
+---
+
+@import "main";
+@import "custom";
+
+/* ============================================
+   OBLIKA - Red Neon Custom Theme for Chirpy
+   Place this file in: assets/css/custom.scss
+   ============================================ */
+
+:root {
+  --red: #e63946;
+  --red-dim: #7a1a20;
+  --red-glow: rgba(230, 57, 70, 0.15);
+  --bg: #0d0d0f;
+  --bg2: #141417;
+  --bg3: #1a1a1f;
+  --text: #e8e8f0;
+  --muted: #7a7a8a;
+  --border: #2a2a35;
+  --font-mono: 'Courier New', monospace;
+}
+
+/* ── GLOBAL ── */
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font-mono) !important;
+}
+
+a {
+  color: var(--red) !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #ff6b6b !important;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  background: var(--bg2) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+#sidebar .site-title a {
+  color: var(--red) !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.05em !important;
+}
+
+#sidebar .site-subtitle {
+  color: var(--muted) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.08em !important;
+}
+
+#sidebar .nav-link {
+  color: var(--muted) !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  border-radius: 4px !important;
+  transition: all 0.2s !important;
+}
+
+#sidebar .nav-link:hover,
+#sidebar .nav-link.active {
+  color: var(--red) !important;
+  background: var(--bg3) !important;
+}
+
+#sidebar .nav-link.active {
+  border-left: 2px solid var(--red) !important;
+}
+
+#sidebar .sidebar-bottom a {
+  color: var(--muted) !important;
+}
+
+#sidebar .sidebar-bottom a:hover {
+  color: var(--red) !important;
+}
+
+/* Avatar border */
+#sidebar img.rounded-circle {
+  border: 2px solid var(--red-dim) !important;
+  filter: grayscale(20%) !important;
+}
+
+/* ── TOPBAR ── */
+#topbar-wrapper {
+  background: var(--bg2) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+#topbar #breadcrumb a,
+#topbar #breadcrumb span {
+  color: var(--muted) !important;
+  font-size: 0.75rem !important;
+}
+
+/* Search */
+#search-wrapper {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+}
+
+#search-input {
+  background: transparent !important;
+  color: var(--text) !important;
+  font-family: var(--font-mono) !important;
+}
+
+/* ── MAIN CONTENT ── */
+#main-wrapper {
+  background: var(--bg) !important;
+}
+
+/* ── POST LIST / HOME ── */
+.post-preview {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 1rem 1.25rem !important;
+  margin-bottom: 0.75rem !important;
+  transition: border-color 0.2s !important;
+}
+
+.post-preview:hover {
+  border-color: var(--red-dim) !important;
+  background: var(--bg2) !important;
+}
+
+.post-preview h1,
+.post-preview h2,
+.post-preview .post-title {
+  color: var(--text) !important;
+  font-size: 1rem !important;
+}
+
+.post-preview .post-meta,
+.post-preview .post-meta i,
+.post-preview time {
+  color: var(--muted) !important;
+  font-size: 0.7rem !important;
+}
+
+/* Category & Tag badges */
+.post-tag,
+.post-category {
+  background: var(--bg2) !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 3px !important;
+  font-size: 0.65rem !important;
+  padding: 2px 7px !important;
+  letter-spacing: 0.05em !important;
+}
+
+.post-tag:hover,
+.post-category:hover {
+  color: var(--red) !important;
+  border-color: var(--red-dim) !important;
+}
+
+/* ── POST PAGE ── */
+.post-title {
+  color: var(--text) !important;
+  font-size: 1.4rem !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: 0.75rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.post-title::before {
+  content: '> ';
+  color: var(--red) !important;
+}
+
+/* Headings inside posts */
+#post-wrapper h1,
+#post-wrapper h2,
+#post-wrapper h3,
+#post-wrapper h4 {
+  color: var(--red) !important;
+  font-family: var(--font-mono) !important;
+  letter-spacing: 0.03em !important;
+}
+
+#post-wrapper h2::before { content: '## '; opacity: 0.5; }
+#post-wrapper h3::before { content: '### '; opacity: 0.5; }
+
+/* Body text */
+#post-wrapper p,
+#post-wrapper li {
+  color: var(--text) !important;
+  line-height: 1.8 !important;
+}
+
+/* Code blocks */
+div.highlight,
+pre.highlight,
+.highlighter-rouge .highlight {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  border-left: 3px solid var(--red) !important;
+}
+
+code {
+  background: var(--bg3) !important;
+  color: var(--red) !important;
+  border-radius: 3px !important;
+  padding: 1px 5px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.85em !important;
+}
+
+pre code {
+  color: var(--text) !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Tables */
+table {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+thead {
+  background: var(--bg2) !important;
+}
+
+thead th {
+  color: var(--red) !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 8px 12px !important;
+}
+
+tbody td {
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 7px 12px !important;
+  font-size: 0.85rem !important;
+}
+
+tbody tr:hover td {
+  background: var(--bg2) !important;
+}
+
+/* Blockquote */
+blockquote {
+  background: var(--bg3) !important;
+  border-left: 3px solid var(--red) !important;
+  border-radius: 0 6px 6px 0 !important;
+  color: var(--muted) !important;
+  padding: 0.75rem 1rem !important;
+  margin: 1rem 0 !important;
+}
+
+/* ── TOC (Table of Contents) ── */
+#toc-wrapper {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+
+#toc li a {
+  color: var(--muted) !important;
+  font-size: 0.75rem !important;
+}
+
+#toc li a:hover {
+  color: var(--red) !important;
+}
+
+/* ── CATEGORIES & TAGS PAGES ── */
+#page-category h1,
+#page-tag h1,
+.tag-name,
+.category-name {
+  color: var(--red) !important;
+}
+
+.tag-item a,
+.category-item a {
+  color: var(--muted) !important;
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  padding: 3px 10px !important;
+  font-size: 0.75rem !important;
+  transition: all 0.2s !important;
+}
+
+.tag-item a:hover,
+.category-item a:hover {
+  color: var(--red) !important;
+  border-color: var(--red-dim) !important;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg2) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+  font-size: 0.7rem !important;
+}
+
+footer a {
+  color: var(--muted) !important;
+}
+
+footer a:hover {
+  color: var(--red) !important;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red-dim);
+}
+
+/* ── SELECTION ── */
+::selection {
+  background: var(--red-dim) !important;
+  color: var(--text) !important;
+}
+
+/* ── PAGINATION ── */
+.pagination .page-item .page-link {
+  background: var(--bg3) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+  border-radius: 4px !important;
+}
+
+.pagination .page-item.active .page-link {
+  background: var(--red-dim) !important;
+  border-color: var(--red) !important;
+  color: var(--text) !important;
+}
+
+/* ── BACK TO TOP ── */
+#back-to-top {
+  background: var(--red-dim) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--red) !important;
+}
