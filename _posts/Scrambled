@@ -1,14 +1,9 @@
-title	HTB — Forest Writeup
-date	2025-06-25
-categories	
-HackTheBox
-Easy
-tags	
-AS-REP Roasting
-BloodHound
-DCSync
-Windows
-AD
+---
+title: "HTB — Scrambled Writeup"
+date: 2025-06-25
+categories: [HackTheBox, Medium]
+tags: [AS-REP Roasting, Silver Ticket, MSSQL, Windows, AD]
+---
 
 ### Scoup
 
