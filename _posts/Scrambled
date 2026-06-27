@@ -10,7 +10,6 @@ DCSync
 Windows
 AD
 
-
 ### Scoup
 
 | **Target IP** | 10.129.17.203 |
@@ -709,3 +708,11 @@ Flags
 | --- | --- | --- |
 | miscsvc | user.txt | d9aa46c6aea9e787dd3d97540a86616b |
 | Administrator | root.txt | 69d5ffd2c6e101dd47935a56ed4290ba |
+
+---
+
+### 9. Lessons Learned
+
+---
+
+Disabling NTLM authentication alone does not make an Active Directory environment secure. Attackers adapt their techniques to the available authentication mechanisms. In this lab, once NTLM was unavailable, Kerberos became the primary attack surface, allowing attacks such as Kerberoasting and Silver Ticket forgery. Effective defense requires a layered security approach, including strong service account password management, AES-only Kerberos where possible, monitoring for abnormal Kerberos activity, and least-privilege access controls.
