@@ -1,3 +1,4 @@
+<img width="2840" height="1400" alt="samuel_oblika_github_banner" src="https://github.com/user-attachments/assets/7d351f4f-f1eb-4541-ad05-a2db04e28d16" />
 # Chirpy Starter
 
 [![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy)][gem]&nbsp;
