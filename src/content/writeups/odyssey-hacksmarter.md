@@ -1,9 +1,10 @@
 ---
-title: "Odyssey - HackSmarter"
-description: "A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse."
-date: 2026-08-12
+title: "Odyssey"
 platform: "HackSmarter"
 difficulty: "Advanced"
+thumbnail: "/images/writeups/Odyssey.png"
+description: "A multi-stage penetration testing lab covering Jinja2 SSTI, Linux post-exploitation, credential discovery, Windows Backup Operators abuse, Pass-the-Hash, Active Directory enumeration, and GPO abuse."
+date: 2026-08-12
 category: "Active Directory"
 tags:
   - HackSmarter
