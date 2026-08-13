@@ -150,7 +150,7 @@ We test a mathematical syntax like `{{7*7}}` and see that it is vulnerable.
 {{7*7}}
 ```
 
-![Odyssey lab screenshot 2](./OdysseyImg/1.SSTI Syntax.png)
+![Odyssey lab screenshot 2](./OdysseyImg/1.SSTI-Syntax.png)
 
 Instead of displaying the expression literally, the application evaluates it.
 
@@ -171,7 +171,7 @@ For example:
 
 The application returns: `7777777`
 
-![Odyssey lab screenshot 3](./OdysseyImg/3.SSTI Inject.png)
+![Odyssey lab screenshot 3](./OdysseyImg/3.SSTI-Inject.png)
 
 Combined with the fact that the server is running Python/Werkzeug, this strongly indicates that the application uses **Jinja2**.
 
@@ -196,7 +196,7 @@ After identifying Jinja2, I tested whether Python objects accessible through the
 {{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}
 ```
 
-![Odyssey lab screenshot 5](./OdysseyImg/5.SSTI - ID.png)
+![Odyssey lab screenshot 5](./OdysseyImg/5.SSTI-ID.png)
 
 We now have:
 
@@ -457,7 +457,7 @@ Full GUI Access
 
 Inside WKST-01, I discovered a `shared` directory containing several files with credentials for different internal services and users.
 
-![Odyssey lab screenshot 17](./OdysseyImg/16.share folder.png)
+![Odyssey lab screenshot 17](./OdysseyImg/16.share-folder.png)
 
 Examples included accounts associated with:
 
