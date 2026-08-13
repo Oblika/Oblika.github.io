@@ -1,0 +1,56 @@
+---
+const current = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+
+const homeUrl = base;
+const writeupsUrl = `${base}writeups/`;
+const aboutUrl = `${base}about/`;
+const contactUrl = `${base}contact/`;
+---
+
+<header class="site-header">
+  <div class="container nav-wrap">
+
+    <a class="brand" href={homeUrl} aria-label="Samuel Oblika home">
+      <span class="brand-mark">SO</span>
+
+      <span class="brand-copy">
+        <strong>Samuel Oblika</strong>
+        <small>Offensive Security</small>
+      </span>
+    </a>
+
+    <nav aria-label="Primary navigation">
+
+      <a
+        class={current === base ? 'active' : ''}
+        href={homeUrl}
+      >
+        Home
+      </a>
+
+      <a
+        class={current.startsWith(writeupsUrl) ? 'active' : ''}
+        href={writeupsUrl}
+      >
+        Writeups
+      </a>
+
+      <a
+        class={current.startsWith(aboutUrl) ? 'active' : ''}
+        href={aboutUrl}
+      >
+        About
+      </a>
+
+      <a
+        class={current.startsWith(contactUrl) ? 'active' : ''}
+        href={contactUrl}
+      >
+        Contact
+      </a>
+
+    </nav>
+
+  </div>
+</header>

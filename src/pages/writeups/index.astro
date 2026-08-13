@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import '../../styles/global.css';
+const posts=(await getCollection('writeups')).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+const categories=[...new Set(posts.map(p=>p.data.category))];
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title="Writeups | Samuel Oblika">
+  <Navbar />
+  <main class="writeups-page">
+    <div class="container">
+      <p class="overline">Writeups</p>
+      <h1>Lab notes and research</h1>
+      <p class="page-lead">Technical notes from authorised labs, training environments and personal research. Search by topic, platform or technique.</p>
+
+      <div class="filterbar">
+        <input id="search" placeholder="Search writeups" aria-label="Search writeups"/>
+        <button class="chip active" data-filter="all">All</button>
+        {categories.map(category=><button class="chip" data-filter={category}>{category}</button>)}
+      </div>
+
+      <div class="writeup-list" id="list">
+        {posts.map(post => <a class="row" data-category={post.data.category} data-search={`${post.data.title} ${post.data.description} ${post.data.platform} ${post.data.tags.join(' ')}`.toLowerCase()} href={`${base}writeups/${post.id}/`}>
+          <div class="row-main">
+            <div class="row-meta"><span>{post.data.category}</span><span>{post.data.platform}</span><span>{post.data.difficulty ?? 'Lab'}</span></div>
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+            <div class="tags">{post.data.tags.map(t=><span class="tag">{t}</span>)}</div>
+          </div>
+          <div class="row-side"><span>{post.data.date.toISOString().slice(0,10)}</span><span>{post.data.readingTime ?? '8 min'}</span></div>
+        </a>)}
+      </div>
+      <p id="empty" class="empty-state" hidden>No writeups matched that search.</p>
+    </div>
+  </main>
+  <Footer />
+
+  <script>
+    const input=document.querySelector('#search');
+    const chips=[...document.querySelectorAll('.chip')];
+    const rows=[...document.querySelectorAll('.row')];
+    const empty=document.querySelector('#empty');
+    let filter='all';
+    function apply(){
+      const q=(input?.value||'').toLowerCase().trim();
+      let visible=0;
+      rows.forEach(r=>{
+        const okFilter=filter==='all'||r.dataset.category===filter;
+        const okSearch=!q||r.dataset.search.includes(q);
+        const show=okFilter&&okSearch;
+        r.style.display=show?'grid':'none';
+        if(show) visible++;
+      });
+      if(empty) empty.hidden=visible!==0;
+    }
+    input?.addEventListener('input',apply);
+    chips.forEach(c=>c.addEventListener('click',()=>{
+      chips.forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      filter=c.dataset.filter||'all';
+      apply();
+    }));
+  </script>
+</BaseLayout>

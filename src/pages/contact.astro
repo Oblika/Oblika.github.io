@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+<BaseLayout title="Contact | Samuel Oblika">
+  <Navbar />
+  <main class="contact-page">
+    <div class="container narrow">
+      <p class="overline">Contact</p>
+      <h1>Let us connect.</h1>
+      <p class="page-lead">For penetration testing opportunities, red team roles, security research or professional networking, LinkedIn is the best place to reach me.</p>
+      <div class="contact-list">
+        <a href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">
+          <div><span>LinkedIn</span><strong>Professional contact and opportunities</strong></div><span class="arrow">Open</span>
+        </a>
+        <a href="https://github.com/Oblika" target="_blank" rel="noreferrer">
+          <div><span>GitHub</span><strong>Projects, methodology and technical work</strong></div><span class="arrow">Open</span>
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
