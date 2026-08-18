@@ -1,6 +1,7 @@
 ---
 title: "WiFi Pentest Field Notes"
 description: "A compact workflow for wireless reconnaissance, channel validation and WPA/WPA2 lab testing."
+thumbnail: "/images/writeups/wifi-cover.svg"
 date: 2026-08-08
 platform: "Lab"
 difficulty: "Notes"

@@ -14,6 +14,7 @@ const writeups = defineCollection({
     tags: z.array(z.string()).default([]),
     featured: z.boolean().default(false),
     readingTime: z.string().optional(),
+    thumbnail: z.string().optional(),
   }),
 });
 

@@ -10,101 +10,97 @@ const featuredPool = posts.filter(p=>p.data.featured);
 const featured = (featuredPool.length ? featuredPool : posts).slice(0,3);
 const base = import.meta.env.BASE_URL;
 ---
-<BaseLayout title="Samuel Oblika | Penetration Tester & Red Team">
+<BaseLayout title="Samuel Oblika | Penetration Tester & Red Team" description="Samuel Oblika — penetration tester and offensive security practitioner focused on Active Directory, web security, red team tradecraft and practical security research.">
   <Navbar />
   <main>
-    <section class="hero">
+    <section class="hero terminal-hero">
       <div class="container hero-grid">
         <div>
-          <div class="availability"><span></span> Open to offensive security opportunities</div>
-          <p class="overline">Penetration Tester / Red Team</p>
-          <h1>Curiosity is the first<br/><span>Exploit</span></h1>
-          <p class="hero-lead">I'm Samuel Oblika, passionate about Offensive Security and continuously
-		building skills across Active Directory, Web application Security,
-		WiFi Security and Blue Team operations.</p>
+          <p class="terminal-line"><span>$</span> ./whoami.sh</p>
+          <div class="availability"><span></span> Open to cybersecurity opportunities</div>
+          <h1>Samuel <span>Oblika</span></h1>
+          <p class="role-line">Penetration Tester <b>·</b> Red Team <b>·</b> Security Researcher</p>
+          <p class="location-line">📍 Shkodër, Albania</p>
+          <p class="hero-lead">Motivated cybersecurity practitioner focused on practical offensive security, with hands-on work across Active Directory, web application security, post-exploitation, wireless testing and defensive fundamentals. I document realistic attack paths and turn each lab into repeatable methodology.</p>
           <div class="actions">
-            <a class="btn primary" href={`${base}writeups/`}>View writeups</a>
-            <a class="btn" href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a class="btn primary" href="#projects">View Projects</a>
+            <a class="btn" href={`${base}contact/`}>Get in Touch</a>
+            <a class="btn ghost" href={`${base}writeups/`}>Read Writeups</a>
           </div>
         </div>
-
         <aside class="profile-card">
-          <div class="profile-top">
-            <div class="avatar">SO</div>
-            <div><strong>Samuel Oblika</strong><span>Offensive Security</span></div>
-          </div>
+          <div class="profile-top"><div class="avatar">SO</div><div><strong>Samuel Oblika</strong><span>Offensive Security</span></div></div>
           <div class="profile-list">
-            <div><span>Focus</span><strong>Penetration Testing</strong></div>
-            <div><span>Specialty</span><strong>Curiosity</strong></div>
-            <div><span>Location</span><strong>Albania</strong></div>
-            <div><span>Status</span><strong class="status-text">Available</strong></div>
+            <div><span>Primary focus</span><strong>Penetration Testing</strong></div>
+            <div><span>Specialty</span><strong>Active Directory</strong></div>
+            <div><span>Method</span><strong>Hands-on labs + research</strong></div>
+            <div><span>Status</span><strong class="status-text">Open to opportunities</strong></div>
           </div>
         </aside>
       </div>
     </section>
 
-    <section class="metrics">
-      <div class="container metric-grid">
-        <div><strong>CPTS Path</strong><span>Penetration Testing</span></div>
-        <div><strong>CWES Path</strong><span>Web Security</span></div>
-        <div><strong>CRTO (In Progres)</strong><span>Red Team</span></div>
-        <div><strong>GitHub</strong><span>Methodology and projects</span></div>
-      </div>
-    </section>
+    <section class="metrics"><div class="container metric-grid">
+      <div><strong>50+</strong><span>Lab machines & attack paths</span></div>
+      <div><strong>Top 3%</strong><span>TryHackMe global ranking</span></div>
+      <div><strong>15+</strong><span>Training paths & certificates</span></div>
+      <div><strong>2022</strong><span>Active since</span></div>
+    </div></section>
 
-    <section class="section">
-      <div class="container">
-        <div class="section-heading">
-          <div><p class="overline">Focus areas</p><h2>What I work on</h2></div>
-          <p>Practical offensive security with an emphasis on repeatable methodology, clean notes and realistic lab work.</p>
-        </div>
-        <div class="focus-grid">
-          <article><span>01</span><h3>Active Directory</h3><p>Kerberos, ACLs, ADCS, delegation, BloodHound and lateral movement.</p></article>
-          <article><span>02</span><h3>Web Security</h3><p>Authentication, access control, SSRF, file upload, injection and application logic.</p></article>
-          <article><span>03</span><h3>Red Team Tradecraft</h3><p>Pivoting, tunnelling, credential access and post-exploitation workflows.</p></article>
-          <article><span>04</span><h3>Wireless Security</h3><p>802.11 reconnaissance, WPA/WPA2 testing and controlled WiFi labs.</p></article>
-        </div>
+    <section class="section"><div class="container">
+      <div class="section-heading"><div><p class="overline">// expertise</p><h2>Technical Skills</h2></div><p>Core competencies built through structured training, independent labs and documented security research.</p></div>
+      <div class="expertise-grid">
+        <article><div class="skill-icon">🔴</div><h3>Offensive Security</h3><p>AD attacks, privilege escalation, network pentesting, OSINT, reconnaissance and post-exploitation.</p><div class="tags"><span class="tag">Metasploit</span><span class="tag">Responder</span><span class="tag">Impacket</span><span class="tag">Nmap</span></div></article>
+        <article><div class="skill-icon">🪟</div><h3>Active Directory</h3><p>Kerberoasting, AS-REP Roasting, ACL abuse, ADCS, delegation, Pass-the-Hash and BloodHound attack paths.</p><div class="tags"><span class="tag">BloodHound</span><span class="tag">Impacket</span><span class="tag">NetExec</span><span class="tag">Certipy</span></div></article>
+        <article><div class="skill-icon">🌐</div><h3>Web App Pentesting</h3><p>OWASP-style testing across authentication, access control, SQLi, XSS, SSRF, file upload and APIs.</p><div class="tags"><span class="tag">Burp Suite</span><span class="tag">SQLMap</span><span class="tag">FFUF</span></div></article>
+        <article><div class="skill-icon">🛡️</div><h3>Defensive Fundamentals</h3><p>SIEM monitoring, Windows event analysis, threat hunting concepts, phishing analysis and incident workflows.</p><div class="tags"><span class="tag">Elastic</span><span class="tag">SIEM</span><span class="tag">Wireshark</span></div></article>
+        <article><div class="skill-icon">📡</div><h3>Wireless Security</h3><p>802.11 reconnaissance, WPA/WPA2 lab testing, packet analysis and controlled wireless attack workflows.</p><div class="tags"><span class="tag">Aircrack-ng</span><span class="tag">Wireshark</span><span class="tag">Kali Linux</span></div></article>
+        <article><div class="skill-icon">⚙️</div><h3>Tools & Languages</h3><p>Kali Linux workflows, scripting and security tooling for repeatable enumeration, exploitation and analysis.</p><div class="tags"><span class="tag">Python</span><span class="tag">Bash</span><span class="tag">C</span><span class="tag">Git</span></div></article>
       </div>
-    </section>
+    </div></section>
 
-    <section class="section section-muted">
-      <div class="container">
-        <div class="section-heading">
-          <div><p class="overline">Latest writeups</p><h2>Recent technical notes</h2></div>
-          <a class="quiet-link" href={`${base}writeups/`}>View all writeups</a>
-        </div>
-        <div class="writeup-grid">
-          {featured.map(post => <a class="card" href={`${base}writeups/${post.id}/`}>
-            <div class="card-meta"><span>{post.data.category}</span><span>{post.data.difficulty ?? 'Lab'}</span></div>
-            <h3>{post.data.title}</h3>
-            <p>{post.data.description}</p>
-            <div class="tags">{post.data.tags.slice(0,4).map(t=><span class="tag">{t}</span>)}</div>
-            <footer><span>{post.data.date.toISOString().slice(0,10)}</span><span>{post.data.readingTime ?? '8 min'}</span></footer>
-          </a>)}
-        </div>
+    <section class="section section-muted"><div class="container">
+      <div class="section-heading"><div><p class="overline">// background</p><h2>Experience</h2></div><p>Practical security learning backed by technical projects, structured programs and continuous lab work.</p></div>
+      <div class="timeline">
+        <article><div class="timeline-date">2022 — Present</div><div><h3>Independent Security Researcher</h3><p class="timeline-org">Hack The Box · TryHackMe · HackSmarter · personal labs</p><p>Practice across Active Directory, web exploitation, privilege escalation, credential attacks, pivoting and realistic multi-stage attack paths. I publish selected work as technical writeups and reusable methodology.</p></div></article>
+        <article><div class="timeline-date">2024</div><div><h3>Cybersecurity Training Program</h3><p class="timeline-org">Kreativstorm</p><p>Hands-on offensive security exercises with Kali Linux, Metasploit and Burp Suite, including web exploitation, brute-force testing, WordPress security and attack/defense workflows.</p></div></article>
+        <article><div class="timeline-date">4 months</div><div><h3>Python / Django Training</h3><p class="timeline-org">ROI Academy</p><p>Built Python and Django applications with HTML/CSS front-end work, strengthening programming fundamentals useful for security tooling and web testing.</p></div></article>
       </div>
-    </section>
+    </div></section>
 
-    <section class="section" id="about">
-      <div class="container about-grid">
-        <div>
-          <p class="overline">About</p>
-          <h2>Building a public record of practical security work.</h2>
-        </div>
-        <div>
-          <p class="about-copy">I use this site as a technical portfolio and knowledge base. It contains lab writeups, research notes and methodology focused on offensive security. The goal is simple: show the work clearly, keep the material organized and make every project easy to revisit.</p>
-          <div class="cert-row"><span>CPTS</span><span>CWES</span><span>CRTA</span><span>CRTO Training</span></div>
-          <div class="profile-actions"><a href="https://github.com/Oblika" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">LinkedIn</a><a href={`${base}contact/`}>Contact</a></div>
-        </div>
+    <section class="section" id="projects"><div class="container">
+      <div class="section-heading"><div><p class="overline">// work</p><h2>Technical Projects</h2></div><p>A selected set of projects and labs. The portfolio emphasizes work I can explain, reproduce and defend in an interview.</p></div>
+      <div class="project-grid">
+        <article><p class="project-type">Lab · Active Directory</p><h3>Active Directory Home Lab</h3><p>Controlled Windows domain environment for practicing Kerberos attacks, credential access, BloodHound enumeration, lateral movement and defensive hardening.</p><div class="tags"><span class="tag">BloodHound</span><span class="tag">Impacket</span><span class="tag">Windows Server</span><span class="tag">VMware</span></div></article>
+        <article><p class="project-type">Portfolio · Methodology</p><h3>Penetration Testing Methodology</h3><p>Structured notes covering information gathering, exploitation, credential access, privilege escalation, lateral movement and reporting.</p><div class="tags"><span class="tag">AD</span><span class="tag">Web</span><span class="tag">Linux</span><span class="tag">Windows</span></div><a class="project-link" href="https://github.com/SamuelOblika" target="_blank" rel="noreferrer">→ GitHub</a></article>
+        <article><p class="project-type">Research · Controlled Labs</p><h3>Adversary Simulation Studies</h3><p>Small controlled experiments around payload behavior, process execution and command-and-control concepts, documented from both offensive and detection perspectives.</p><div class="tags"><span class="tag">C</span><span class="tag">Python</span><span class="tag">C2 Concepts</span><span class="tag">Detection</span></div></article>
+        <article><p class="project-type">Tool Development · Python</p><h3>Security Automation Tools</h3><p>Python utilities for authentication testing, cryptography exercises and repetitive security workflows built as learning projects.</p><div class="tags"><span class="tag">Python</span><span class="tag">HTTP</span><span class="tag">Automation</span></div><a class="project-link" href="https://github.com/SamuelOblika" target="_blank" rel="noreferrer">→ GitHub</a></article>
       </div>
-    </section>
+    </div></section>
 
-    <section class="cta">
-      <div class="container cta-inner">
-        <div><p class="overline">Portfolio</p><h2>See the methodology behind the work.</h2></div>
-        <a class="btn primary" href={`${base}writeups/`}>Explore writeups</a>
+    <section class="section section-muted"><div class="container">
+      <div class="section-heading"><div><p class="overline">// writeups</p><h2>Recent Technical Work</h2></div><a class="quiet-link" href={`${base}writeups/`}>View all writeups →</a></div>
+      <div class="writeup-grid">
+        {featured.map(post => <a class="card cover-card" href={`${base}writeups/${post.id}/`}>
+          <div class="writeup-thumbnail-wrapper"><img class="writeup-thumbnail" src={post.data.thumbnail ?? `${base}images/writeups/default-cover.svg`} alt={`${post.data.title} cover`} loading="lazy" /></div>
+          <div class="card-body"><div class="card-meta"><span>{post.data.category}</span><span>{post.data.difficulty ?? 'Lab'}</span></div><h3>{post.data.title}</h3><p>{post.data.description}</p><div class="tags">{post.data.tags.slice(0,4).map(t=><span class="tag">{t}</span>)}</div><footer><span>{post.data.date.toISOString().slice(0,10)}</span><span>{post.data.readingTime ?? '8 min'}</span></footer></div>
+        </a>)}
       </div>
-    </section>
+    </div></section>
+
+    <section class="section"><div class="container">
+      <div class="section-heading"><div><p class="overline">// credentials</p><h2>Training & Credentials</h2></div><p>Keeping completed training separate from certifications makes the profile clearer and more credible to recruiters.</p></div>
+      <div class="credential-grid">
+        <article><span>Hack The Box</span><strong>CPTS Penetration Tester Path</strong><em>Completed training path</em></article>
+        <article><span>Hack The Box</span><strong>CWES Web Exploitation Path</strong><em>Completed training path</em></article>
+        <article><span>Zero-Point Security</span><strong>CRTO Training</strong><em>Course completed · certification goal</em></article>
+        <article><span>Cyberwarfare Labs</span><strong>CRTA</strong><em>Completed</em></article>
+        <article><span>TCM Security</span><strong>Practical Ethical Hacking</strong><em>Completed training</em></article>
+        <article><span>TryHackMe</span><strong>Junior Penetration Tester</strong><em>Completed learning path</em></article>
+      </div>
+    </div></section>
+
+    <section class="cta"><div class="container cta-inner"><div><p class="overline">// connect</p><h2>Open to penetration testing and red team opportunities.</h2><p class="cta-copy">For roles, collaboration or security research, reach out on LinkedIn or view the technical work behind the profile.</p></div><div class="actions"><a class="btn primary" href={`${base}contact/`}>Get in Touch</a><a class="btn" href="https://www.linkedin.com/in/samueloblika/" target="_blank" rel="noreferrer">LinkedIn</a></div></div></section>
   </main>
   <Footer />
 </BaseLayout>

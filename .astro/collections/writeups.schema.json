@@ -35,6 +35,9 @@
     "readingTime": {
       "type": "string"
     },
+    "thumbnail": {
+      "type": "string"
+    },
     "$schema": {
       "type": "string"
     }
